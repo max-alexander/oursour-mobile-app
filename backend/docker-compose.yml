@@ -6,10 +6,9 @@ services:
       - "1521:1521"
     environment:
       ORACLE_PASSWORD: oracle
-      APP_USER: oursour
-      APP_USER_PASSWORD: oursour
     volumes:
       - oracle-data:/opt/oracle/oradata
+      - ./db/init:/container-entrypoint-initdb.d
 
 volumes:
   oracle-data:
