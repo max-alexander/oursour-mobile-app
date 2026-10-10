@@ -1,0 +1,15 @@
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim
+    container_name: oursour-oracle
+    ports:
+      - "1521:1521"
+    environment:
+      ORACLE_PASSWORD: oracle
+      APP_USER: oursour
+      APP_USER_PASSWORD: oursour
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+
+volumes:
+  oracle-data:
