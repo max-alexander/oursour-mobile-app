@@ -39,6 +39,15 @@ Cada servicio se configura con variables de entorno (defaults en su `application
 | `DB_URL`      | `jdbc:oracle:thin:@//localhost:1521/FREEPDB1` |
 | `DB_USERNAME` / `DB_PASSWORD` | nombre del schema del servicio |
 
+Datos de prueba (ficticios, se cargan con Flyway al primer arranque):
+
+| Email                | Contraseña   | Rol     |
+|----------------------|--------------|---------|
+| `admin@oursour.cl`   | `admin123`   | ADMIN   |
+| `cliente@oursour.cl` | `cliente123` | CLIENTE |
+
+Pago simulado: cualquier tarjeta de 16 dígitos se aprueba, salvo las terminadas en `0000`, que se rechazan.
+
 Las migraciones van en `<servicio>/src/main/resources/db/migration` (Flyway, `V1__descripcion.sql`, ...).
 El script `backend/db/init/01_schemas.sql` solo corre al crear el volumen; si ya existía de antes: `docker compose down -v`.
 
