@@ -24,11 +24,11 @@ Requisitos: JDK 21 y Docker (para Oracle local).
 
 ```bash
 cd backend
-docker compose up -d                          # Oracle Free en localhost:1521, crea un schema por servicio
-(cd eureka-server && ./mvnw spring-boot:run)  # primero Eureka
-(cd api-gateway && ./mvnw spring-boot:run)
-(cd usuario-service && ./mvnw spring-boot:run) # ídem para catalogo, receta y pedido
+./start.sh      # levanta Oracle, Eureka, el gateway y los 4 servicios
+./stop.sh       # apaga los servicios (./stop.sh --todo apaga también Oracle)
 ```
+
+Los logs de cada servicio quedan en `backend/logs/`. Para levantar uno solo: `cd <servicio> && ./mvnw spring-boot:run`.
 
 Cada servicio se configura con variables de entorno (defaults en su `application.properties`):
 
