@@ -1,0 +1,137 @@
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (1, 'Our Sour Limón', 'OUR_SOUR', 1);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (2, 'Our Sour Maracuyá', 'OUR_SOUR', 2);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (3, 'Our Sour Pomelo', 'OUR_SOUR', 3);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (4, 'Our Sour Frutos Rojos', 'OUR_SOUR', 4);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (5, 'Our Sour Mango', 'OUR_SOUR', 5);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (6, 'Our Sour Jarabe de Goma', 'OUR_SOUR', 6);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (7, 'Pisco', 'DESTILADO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (8, 'Gin', 'DESTILADO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (9, 'Vodka', 'DESTILADO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (10, 'Ron blanco', 'DESTILADO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (11, 'Tequila', 'DESTILADO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (12, 'Whisky', 'DESTILADO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (13, 'Triple sec', 'LICOR', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (14, 'Aperol', 'LICOR', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (15, 'Espumante', 'LICOR', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (16, 'Limón', 'FRUTA', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (17, 'Naranja', 'FRUTA', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (18, 'Frutilla', 'FRUTA', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (19, 'Pepino', 'FRUTA', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (20, 'Jugo de naranja', 'JUGO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (21, 'Jugo de piña', 'JUGO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (22, 'Jugo de arándano', 'JUGO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (23, 'Agua tónica', 'MIXER', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (24, 'Soda', 'MIXER', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (25, 'Ginger ale', 'MIXER', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (26, 'Hielo', 'OTRO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (27, 'Menta', 'OTRO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (28, 'Clara de huevo', 'OTRO', NULL);
+INSERT INTO ingredientes (id, nombre, categoria, producto_id) VALUES (29, 'Amargo de angostura', 'OTRO', NULL);
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (1, 'Pisco Sour Our Sour', 'El clásico chileno con base de limón lista.', FALSE, 1);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (1, 7, '90 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (1, 1, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (1, 28, '1 unidad');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (1, 26, '1 taza');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (1, 29, '3 gotas');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (1, 0, 'Agrega pisco, Our Sour Limón, clara de huevo y hielo a la coctelera.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (1, 1, 'Bate con fuerza durante 15 segundos.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (1, 2, 'Cuela en una copa y termina con gotas de amargo de angostura.');
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (2, 'Gin Sour de Maracuyá', 'Sour tropical y aromático.', FALSE, 2);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (2, 8, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (2, 2, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (2, 26, '1 taza');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (2, 0, 'Agrega gin, Our Sour Maracuyá y hielo a la coctelera.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (2, 1, 'Bate durante 10 segundos.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (2, 2, 'Sirve en vaso corto con hielo.');
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (3, 'Gin Tonic de Pomelo', 'Refrescante y cítrico, ideal para el verano.', FALSE, 3);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (3, 8, '50 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (3, 3, '30 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (3, 23, '150 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (3, 26, '1 taza');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (3, 19, '2 láminas');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (3, 0, 'Llena una copa balón con hielo.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (3, 1, 'Agrega gin y Our Sour Pomelo.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (3, 2, 'Completa con agua tónica y decora con láminas de pepino.');
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (4, 'Whisky Sour', 'Equilibrio entre dulzor y acidez.', FALSE, 1);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (4, 12, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (4, 1, '45 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (4, 28, '1 unidad');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (4, 26, '1 taza');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (4, 0, 'Bate whisky, Our Sour Limón y clara de huevo sin hielo.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (4, 1, 'Agrega hielo y vuelve a batir.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (4, 2, 'Cuela en vaso corto con hielo.');
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (5, 'Margarita de Mango', 'Versión frutal de la margarita.', FALSE, 5);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (5, 11, '50 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (5, 13, '20 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (5, 5, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (5, 26, '1 taza');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (5, 16, '1 rodaja');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (5, 0, 'Escarcha el borde de la copa con sal.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (5, 1, 'Bate tequila, triple sec, Our Sour Mango y hielo.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (5, 2, 'Sirve y decora con una rodaja de limón.');
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (6, 'Mojito', 'Clásico cubano fresco y herbal.', FALSE, 6);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (6, 10, '50 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (6, 6, '20 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (6, 16, '1/2 unidad');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (6, 27, '8 hojas');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (6, 24, '100 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (6, 26, '1 taza');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (6, 0, 'Machaca suavemente la menta con el limón y el jarabe de goma.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (6, 1, 'Agrega ron y hielo.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (6, 2, 'Completa con soda y revuelve.');
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (7, 'Vodka Frutos Rojos', 'Trago frutal de color intenso.', FALSE, 4);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (7, 9, '50 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (7, 4, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (7, 22, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (7, 26, '1 taza');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (7, 0, 'Llena un vaso alto con hielo.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (7, 1, 'Agrega vodka y Our Sour Frutos Rojos.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (7, 2, 'Completa con jugo de arándano y revuelve.');
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (8, 'Spritz de Pomelo', 'Aperitivo burbujeante y amargo.', FALSE, 3);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (8, 14, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (8, 15, '90 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (8, 3, '20 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (8, 24, '30 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (8, 26, '1 taza');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (8, 17, '1 rodaja');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (8, 0, 'Llena una copa de vino con hielo.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (8, 1, 'Agrega Aperol, Our Sour Pomelo y espumante.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (8, 2, 'Termina con soda y una rodaja de naranja.');
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (9, 'Limonada de Maracuyá', 'Mocktail refrescante sin alcohol.', TRUE, 2);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (9, 2, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (9, 24, '150 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (9, 27, '5 hojas');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (9, 26, '1 taza');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (9, 0, 'Llena un vaso alto con hielo y menta.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (9, 1, 'Agrega Our Sour Maracuyá.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (9, 2, 'Completa con soda y revuelve.');
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (10, 'Frutos Rojos Fizz', 'Mocktail burbujeante de frutos rojos.', TRUE, 4);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (10, 4, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (10, 25, '150 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (10, 18, '3 unidades');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (10, 26, '1 taza');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (10, 0, 'Machaca las frutillas en el fondo del vaso.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (10, 1, 'Agrega hielo y Our Sour Frutos Rojos.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (10, 2, 'Completa con ginger ale.');
+
+INSERT INTO recetas (id, titulo, descripcion, sin_alcohol, producto_id) VALUES (11, 'Tropical Mango', 'Mocktail cremoso de frutas tropicales.', TRUE, 5);
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (11, 5, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (11, 21, '90 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (11, 20, '60 ml');
+INSERT INTO receta_ingredientes (receta_id, ingrediente_id, cantidad) VALUES (11, 26, '1 taza');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (11, 0, 'Agrega todos los ingredientes a la coctelera con hielo.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (11, 1, 'Bate durante 10 segundos.');
+INSERT INTO receta_pasos (receta_id, orden, descripcion) VALUES (11, 2, 'Sirve en vaso alto.');
+
+ALTER TABLE ingredientes MODIFY id GENERATED BY DEFAULT AS IDENTITY (START WITH LIMIT VALUE);
+ALTER TABLE recetas MODIFY id GENERATED BY DEFAULT AS IDENTITY (START WITH LIMIT VALUE);
