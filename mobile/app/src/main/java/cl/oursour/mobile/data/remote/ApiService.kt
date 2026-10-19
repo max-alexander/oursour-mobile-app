@@ -1,4 +1,4 @@
-package cl.oursour.mobile.data
+package cl.oursour.mobile.data.remote
 
 import retrofit2.http.GET
 

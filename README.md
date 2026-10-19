@@ -44,5 +44,12 @@ El script `backend/db/init/01_schemas.sql` solo corre al crear el volumen; si ya
 
 ## Mobile
 
-Abrir la carpeta `mobile/` en Android Studio y ejecutar en un emulador.
-En debug la app apunta a `http://10.0.2.2:8080/` (el localhost del PC visto desde el emulador).
+Abrir la carpeta `mobile/` en Android Studio y ejecutar en un emulador (minSdk 26).
+
+App en Kotlin + Jetpack Compose + Material 3, arquitectura MVVM, Room (base de datos local),
+Navigation Compose y lectura de QR con ZXing. En esta etapa **no se conecta al backend**:
+el catálogo usa datos ficticios y los datos del usuario se guardan en Room.
+
+- Guía de paquetes, base de datos, QR y guion del video: [`mobile/docs/GUIA_APP.md`](mobile/docs/GUIA_APP.md)
+- Códigos QR de prueba: [`mobile/docs/qr/`](mobile/docs/qr/)
+- Admin de prueba: `admin@oursour.cl` / `admin123`

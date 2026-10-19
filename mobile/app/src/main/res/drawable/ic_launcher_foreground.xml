@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copa de cóctel dorada (icono de la app) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#D4A22B"
+        android:pathData="M34,36 L74,36 L56,56 L56,70 L64,74 L64,76 L44,76 L44,74 L52,70 L52,56 Z" />
+    <path
+        android:fillColor="#F5EBD0"
+        android:pathData="M40,40 L68,40 L62,47 L46,47 Z" />
+    <path
+        android:fillColor="#D4A22B"
+        android:pathData="M66,28 m-4,0 a4,4 0,1 1,8 0 a4,4 0,1 1,-8 0" />
+</vector>

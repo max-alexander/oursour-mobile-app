@@ -1,4 +1,4 @@
-package cl.oursour.mobile.data
+package cl.oursour.mobile.data.remote
 
 import cl.oursour.mobile.BuildConfig
 import okhttp3.OkHttpClient
