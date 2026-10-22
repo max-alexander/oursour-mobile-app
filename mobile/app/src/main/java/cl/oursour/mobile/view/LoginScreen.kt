@@ -17,7 +17,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -94,7 +93,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
                     text = "Credenciales inválidas",
-                    color = Color.Red
+                    color = MaterialTheme.colorScheme.error
                 )
             }
 
