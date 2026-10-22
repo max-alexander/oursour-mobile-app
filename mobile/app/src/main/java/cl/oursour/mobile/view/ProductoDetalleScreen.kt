@@ -1,6 +1,5 @@
 package cl.oursour.mobile.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,12 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Liquor
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -42,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.oursour.mobile.data.repository.CatalogoRepository
 import cl.oursour.mobile.util.formatearPrecio
+import cl.oursour.mobile.view.components.ImagenProducto
 import cl.oursour.mobile.view.components.BotonDorado
 import cl.oursour.mobile.view.components.CarritoBoton
 import cl.oursour.mobile.view.components.EstadoVacio
@@ -112,20 +110,11 @@ fun ProductoDetalleScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(20.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Filled.Liquor,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(96.dp)
-                )
-            }
+            ImagenProducto(
+                productoId = producto.id,
+                modifier = Modifier.fillMaxWidth().height(200.dp),
+                esquinas = 20.dp
+            )
             Spacer(Modifier.height(16.dp))
             Text(producto.nombre, style = MaterialTheme.typography.headlineSmall)
             Text(formatearPrecio(producto.precio), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.tertiary)

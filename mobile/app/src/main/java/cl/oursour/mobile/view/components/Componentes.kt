@@ -1,5 +1,6 @@
 package cl.oursour.mobile.view.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,13 +41,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cl.oursour.mobile.R
 import cl.oursour.mobile.model.TipoReceta
 import cl.oursour.mobile.viewmodel.CarritoViewModel
 import com.google.zxing.BarcodeFormat
@@ -253,5 +258,30 @@ fun QrImagen(contenido: String, modifier: Modifier = Modifier, tamano: Dp = 180.
         bitmap = bitmap.asImageBitmap(),
         contentDescription = "Código QR: $contenido",
         modifier = modifier.size(tamano)
+    )
+}
+
+// Imagen de cada producto, guardada en res/drawable.
+// Los productos nuevos que cree el administrador usan la imagen genérica.
+@DrawableRes
+fun imagenProducto(productoId: Int): Int = when (productoId) {
+    1 -> R.drawable.producto_limon
+    2 -> R.drawable.producto_maracuya
+    3 -> R.drawable.producto_mango
+    4 -> R.drawable.producto_frutilla
+    5 -> R.drawable.producto_mojito
+    6 -> R.drawable.producto_jengibre
+    7 -> R.drawable.producto_pomelo
+    else -> R.drawable.producto_generico
+}
+
+@Composable
+fun ImagenProducto(productoId: Int, modifier: Modifier = Modifier, esquinas: Dp = 12.dp) {
+    Image(
+        painter = painterResource(id = imagenProducto(productoId)),
+        contentDescription = null,
+        // Crop: llena el espacio recortando los bordes sin deformar la imagen
+        contentScale = ContentScale.Crop,
+        modifier = modifier.clip(RoundedCornerShape(esquinas))
     )
 }

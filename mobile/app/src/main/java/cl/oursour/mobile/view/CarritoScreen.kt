@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,6 +45,7 @@ import cl.oursour.mobile.data.repository.CatalogoRepository
 import cl.oursour.mobile.ui.theme.Verde
 import cl.oursour.mobile.util.ReglasDespacho
 import cl.oursour.mobile.util.formatearPrecio
+import cl.oursour.mobile.view.components.ImagenProducto
 import cl.oursour.mobile.view.components.BotonPrincipal
 import cl.oursour.mobile.view.components.EstadoVacio
 import cl.oursour.mobile.view.components.FilaResumen
@@ -127,6 +130,8 @@ fun CarritoScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        ImagenProducto(productoId = item.productoId, modifier = Modifier.size(56.dp), esquinas = 10.dp)
+                        Spacer(Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(item.nombre, style = MaterialTheme.typography.titleMedium)
                             Text(

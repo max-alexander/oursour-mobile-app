@@ -1,8 +1,6 @@
 package cl.oursour.mobile.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -17,7 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
-import androidx.compose.material.icons.filled.Liquor
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -45,6 +42,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.oursour.mobile.data.repository.CatalogoRepository
 import cl.oursour.mobile.model.Producto
 import cl.oursour.mobile.util.formatearPrecio
+import cl.oursour.mobile.view.components.ImagenProducto
 import cl.oursour.mobile.view.components.CarritoBoton
 import cl.oursour.mobile.view.components.OurSourTopBar
 import cl.oursour.mobile.viewmodel.CarritoViewModel
@@ -115,14 +113,7 @@ private fun TarjetaProducto(producto: Producto, onClick: () -> Unit, onAgregar: 
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Filled.Liquor, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
-            }
+            ImagenProducto(productoId = producto.id, modifier = Modifier.size(72.dp))
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(producto.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
