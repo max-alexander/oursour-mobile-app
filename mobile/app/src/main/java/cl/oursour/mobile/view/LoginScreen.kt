@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -83,7 +84,8 @@ fun LoginScreen(
                         loginViewModel.loginConsumidor(onLoginConsumidor)
                     }
                 },
-                modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
+                modifier = Modifier.padding(top = 12.dp).fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(5.dp)
             ) {
                 Text(text = "Ingresar")
             }
