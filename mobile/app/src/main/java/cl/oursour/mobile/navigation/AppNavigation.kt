@@ -31,6 +31,7 @@ import cl.oursour.mobile.view.admin.GestionCatalogoScreen
 import cl.oursour.mobile.view.admin.MetricasScreen
 import cl.oursour.mobile.view.admin.RecetaFormScreen
 import cl.oursour.mobile.viewmodel.CheckoutViewModel
+import cl.oursour.mobile.viewmodel.SesionViewModel
 
 // Define todas las pantallas y cómo se navega entre ellas
 @Composable
@@ -39,9 +40,15 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
     // Se crea aquí para que Despacho, Resumen y Pago compartan la MISMA instancia
     val checkoutViewModel: CheckoutViewModel = viewModel()
 
-    // Vuelve a la pantalla de bienvenida y borra todo el historial
+    // Revisa si quedó una sesión guardada en la base de datos local
+    val sesionViewModel: SesionViewModel = viewModel()
+
+    // Mientras se consulta la base de datos no se muestra nada (es casi instantáneo)
+    val rutaInicial = sesionViewModel.rutaInicial ?: return
+
+    // Borra la sesión guardada, vuelve a la bienvenida y borra todo el historial
     fun cerrarSesion() {
-        SesionUsuario.cerrar()
+        sesionViewModel.cerrarSesion()
         navController.navigate(Routes.BIENVENIDA) {
             popUpTo(0) { inclusive = true }
         }
@@ -54,7 +61,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         }
     }
 
-    NavHost(navController = navController, startDestination = Routes.BIENVENIDA) {
+    NavHost(navController = navController, startDestination = rutaInicial) {
 
         // ---------------- AUTENTICACIÓN ----------------
         composable(Routes.BIENVENIDA) {

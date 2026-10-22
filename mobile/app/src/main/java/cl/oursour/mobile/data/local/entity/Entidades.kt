@@ -13,6 +13,16 @@ data class UsuarioEntity(
     val password: String
 )
 
+// "Marquita" de sesión iniciada: si existe esta fila, la app abre directo en el home.
+// Siempre hay como máximo una fila (id = 1); al cerrar sesión se borra.
+@Entity(tableName = "sesion")
+data class SesionEntity(
+    @PrimaryKey val id: Int = 1,
+    val email: String,
+    val nombre: String,
+    val rol: String // CONSUMIDOR o ADMINISTRADOR
+)
+
 // Ingredientes que el usuario guarda como frecuentes para seleccionarlos rápido
 @Entity(tableName = "ingredientes_frecuentes")
 data class IngredienteFrecuenteEntity(

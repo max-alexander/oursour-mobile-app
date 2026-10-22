@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import cl.oursour.mobile.data.local.AppDatabase
+import cl.oursour.mobile.data.local.entity.SesionEntity
 import cl.oursour.mobile.data.local.entity.UsuarioEntity
 import cl.oursour.mobile.data.repository.SesionUsuario
 import cl.oursour.mobile.model.Rol
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 class RegistroViewModel(application: Application) : AndroidViewModel(application) {
 
     private val usuarioDao = AppDatabase.obtener(application).usuarioDao()
+    private val sesionDao = AppDatabase.obtener(application).sesionDao()
 
     var nombre by mutableStateOf("")
         private set
@@ -78,6 +80,8 @@ class RegistroViewModel(application: Application) : AndroidViewModel(application
             // En la Unidad 3 el registro se hará en el backend (contraseña cifrada con BCrypt)
             usuarioDao.insertar(UsuarioEntity(correo, nombre.trim(), password))
             SesionUsuario.iniciar(Usuario(nombre.trim(), correo, Rol.CONSUMIDOR))
+            // "Marquita" de sesión iniciada en la base de datos local
+            sesionDao.guardar(SesionEntity(email = correo, nombre = nombre.trim(), rol = Rol.CONSUMIDOR.name))
             onExito()
         }
     }
