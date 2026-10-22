@@ -41,6 +41,16 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         error = null
     }
 
+    // Valida las credenciales contra el usuario en duro (admin).
+    // Un solo return, como sugiere la buena práctica.
+    fun login(): Boolean {
+        var validador = false
+        if (email.equals(adminValido.email, ignoreCase = true) && password == passAdmin) {
+            validador = true
+        }
+        return validador
+    }
+
     fun iniciarSesion(onConsumidor: () -> Unit, onAdministrador: () -> Unit) {
         if (email.isBlank() || password.isBlank()) {
             error = "Completa el correo y la contraseña"
@@ -51,7 +61,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        if (email.equals(adminValido.email, ignoreCase = true) && password == passAdmin) {
+        if (login()) {
             SesionUsuario.iniciar(adminValido)
             onAdministrador()
             return
