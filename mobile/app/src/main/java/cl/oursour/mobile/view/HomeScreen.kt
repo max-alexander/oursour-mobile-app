@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -59,7 +60,20 @@ fun HomeScreen(
                     Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
                 }
             })
-        }
+        },
+        // Botón flotante para leer un código QR
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onEscanearQr,
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = MaterialTheme.colorScheme.onSecondary,
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Icon(Icons.Filled.QrCodeScanner, contentDescription = "Escanear código QR")
+            }
+        },
+        // Color de fondo de toda la pantalla (viene del tema)
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
@@ -115,26 +129,6 @@ fun HomeScreen(
                 OpcionHome("Mis pedidos", Icons.AutoMirrored.Filled.ReceiptLong, onMisPedidos, Modifier.weight(1f))
                 OpcionHome("Todas las recetas", Icons.AutoMirrored.Filled.MenuBook, onTodasLasRecetas, Modifier.weight(1f))
             }
-            Spacer(Modifier.height(12.dp))
-
-            Card(
-                onClick = onEscanearQr,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
-            ) {
-                Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.QrCodeScanner, contentDescription = null, modifier = Modifier.size(36.dp))
-                    Spacer(Modifier.width(16.dp))
-                    Column {
-                        Text("Escanear código QR", style = MaterialTheme.typography.titleMedium)
-                        Text(
-                            "Escanea el QR de un producto Our Sour o de una receta",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-            }
 
             if (SesionUsuario.esInvitado) {
                 Spacer(Modifier.height(16.dp))
@@ -144,7 +138,8 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Spacer(Modifier.height(24.dp))
+            // Espacio extra para que el botón flotante no tape el contenido
+            Spacer(Modifier.height(88.dp))
         }
     }
 }
