@@ -56,8 +56,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     // Las consultas a Room se ejecutan dentro de una corrutina.
     fun loginConsumidor(onExito: () -> Unit) {
         viewModelScope.launch {
-            val usuario = usuarioDao.buscarPorEmail(email.lowercase())
-            if (usuario != null && usuario.password == password) {
+            // La consulta del DAO devuelve el usuario solo si el correo y la contraseña coinciden
+            val usuario = usuarioDao.login(email.lowercase(), password)
+            if (usuario != null) {
                 val consumidor = Usuario(usuario.nombre, usuario.email, Rol.CONSUMIDOR)
                 SesionUsuario.iniciar(consumidor)
                 guardarSesion(consumidor)

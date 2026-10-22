@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 // Cada @Entity es una tabla de la base de datos SQLite local
 
 // Usuarios registrados en el dispositivo (mientras no exista conexión al backend)
+// @Entity convierte la clase en la tabla "usuarios"; @PrimaryKey marca la llave primaria (el correo)
 @Entity(tableName = "usuarios")
 data class UsuarioEntity(
     @PrimaryKey val email: String,
