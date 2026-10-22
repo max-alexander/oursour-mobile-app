@@ -7,15 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.LocalBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -28,7 +26,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import cl.oursour.mobile.view.components.BotonPrincipal
+import androidx.compose.ui.unit.sp
 
 // Pantalla 1 del wireframe: Login / Onboarding
 @Composable
@@ -42,12 +40,14 @@ fun BienvenidaScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
-            .padding(32.dp),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Logo: círculo con el ícono de cóctel
         Box(
             modifier = Modifier
+                .padding(bottom = 24.dp)
                 .size(110.dp)
                 .background(MaterialTheme.colorScheme.primary, CircleShape),
             contentAlignment = Alignment.Center
@@ -59,53 +59,46 @@ fun BienvenidaScreen(
                 modifier = Modifier.size(60.dp)
             )
         }
-        Spacer(Modifier.height(24.dp))
-        Text("Our Sour", style = MaterialTheme.typography.headlineLarge)
-        Spacer(Modifier.height(8.dp))
+
         Text(
-            "\"¡Encuentra tu cóctel perfecto!\"",
-            style = MaterialTheme.typography.titleMedium,
+            text = "Our Sour",
+            fontSize = 36.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Text(
+            text = "\"¡Encuentra tu cóctel perfecto!\"",
+            fontSize = 18.sp,
             fontStyle = FontStyle.Italic,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            modifier = Modifier.padding(bottom = 8.dp)
         )
-        Spacer(Modifier.height(8.dp))
         Text(
-            "Dinos qué ingredientes tienes en casa y te mostramos qué cócteles y mocktails puedes preparar.",
-            style = MaterialTheme.typography.bodyMedium,
+            text = "Dinos qué ingredientes tienes en casa y te mostramos qué cócteles y mocktails puedes preparar.",
+            fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
 
-        Spacer(Modifier.height(48.dp))
-
-        BotonPrincipal(texto = "Iniciar sesión", onClick = onIniciarSesion)
-        Text(
-            "Usuario registrado",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
-        )
+        Button(
+            onClick = onIniciarSesion,
+            modifier = Modifier.padding(top = 48.dp).fillMaxWidth()
+        ) {
+            Text(text = "Iniciar sesión")
+        }
 
         OutlinedButton(
             onClick = onInvitado,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(14.dp)
+            modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
         ) {
-            Text("Usar como invitado", fontWeight = FontWeight.Bold)
+            Text(text = "Usar como invitado")
         }
-        Text(
-            "Búsqueda rápida",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp)
-        )
 
+        // Empuja el acceso de administrador hacia abajo
         Spacer(Modifier.weight(1f))
 
         TextButton(onClick = onAccesoAdmin) {
-            Icon(Icons.Filled.AdminPanelSettings, contentDescription = null, modifier = Modifier.size(18.dp))
-            Text("  Acceso administrador")
+            Text(text = "Acceso administrador")
         }
     }
 }

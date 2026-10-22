@@ -3,14 +3,12 @@ package cl.oursour.mobile.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -34,9 +32,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cl.oursour.mobile.view.components.BotonDorado
 import cl.oursour.mobile.view.components.OurSourTopBar
 import cl.oursour.mobile.viewmodel.CheckoutViewModel
@@ -58,8 +58,7 @@ fun PagoScreen(
                     if (procesando) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                            Spacer(Modifier.width(12.dp))
-                            Text("Procesando pago...")
+                            Text(text = "Procesando pago...", modifier = Modifier.padding(start = 12.dp))
                         }
                     } else {
                         BotonDorado(
@@ -78,11 +77,11 @@ fun PagoScreen(
                 .padding(padding)
                 .imePadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
+                .padding(16.dp)
         ) {
             // Vista previa de la tarjeta
             Card(
-                modifier = Modifier.fillMaxWidth().height(180.dp),
+                modifier = Modifier.padding(bottom = 20.dp).fillMaxWidth().height(180.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -95,12 +94,11 @@ fun PagoScreen(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.CreditCard, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Our Sour Pay · Sandbox")
+                        Text(text = "Our Sour Pay · Sandbox", modifier = Modifier.padding(start = 8.dp))
                     }
                     Text(
-                        checkoutViewModel.numeroTarjeta.padEnd(16, '•').chunked(4).joinToString(" "),
-                        style = MaterialTheme.typography.titleLarge,
+                        text = checkoutViewModel.numeroTarjeta.padEnd(16, '•').chunked(4).joinToString(" "),
+                        fontSize = 22.sp,
                         fontFamily = FontFamily.Monospace
                     )
                     Row {
@@ -110,7 +108,6 @@ fun PagoScreen(
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
             OutlinedTextField(
                 value = checkoutViewModel.numeroTarjeta,
                 onValueChange = { checkoutViewModel.cambiarNumeroTarjeta(it) },
@@ -120,7 +117,6 @@ fun PagoScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = checkoutViewModel.titular,
                 onValueChange = { checkoutViewModel.cambiarTitular(it) },
@@ -129,7 +125,6 @@ fun PagoScreen(
                 enabled = !procesando,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp))
             Row {
                 OutlinedTextField(
                     value = checkoutViewModel.vencimiento,
@@ -137,9 +132,8 @@ fun PagoScreen(
                     label = { Text("Vencimiento (MM/AA)") },
                     singleLine = true,
                     enabled = !procesando,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).padding(end = 8.dp)
                 )
-                Spacer(Modifier.width(8.dp))
                 OutlinedTextField(
                     value = checkoutViewModel.cvv,
                     onValueChange = { checkoutViewModel.cambiarCvv(it) },
@@ -153,20 +147,24 @@ fun PagoScreen(
             }
 
             checkoutViewModel.errorPago?.let {
-                Spacer(Modifier.height(8.dp))
-                Text(it, color = MaterialTheme.colorScheme.error)
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
-            Spacer(Modifier.height(20.dp))
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+            Card(
+                modifier = Modifier.padding(top = 20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+            ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text("Modo sandbox", style = MaterialTheme.typography.titleMedium)
-                    Text("• 4242 4242 4242 4242 → pago aprobado", style = MaterialTheme.typography.bodySmall)
-                    Text("• Cualquier tarjeta terminada en 0000 → pago rechazado", style = MaterialTheme.typography.bodySmall)
-                    Text("No se realizan cobros reales.", style = MaterialTheme.typography.bodySmall)
+                    Text(text = "Modo sandbox", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "• 4242 4242 4242 4242 → pago aprobado", fontSize = 12.sp)
+                    Text(text = "• Cualquier tarjeta terminada en 0000 → pago rechazado", fontSize = 12.sp)
+                    Text(text = "No se realizan cobros reales.", fontSize = 12.sp)
                 }
             }
-            Spacer(Modifier.height(24.dp))
         }
     }
 

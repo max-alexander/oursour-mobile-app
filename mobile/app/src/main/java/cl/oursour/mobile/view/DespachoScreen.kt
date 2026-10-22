@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -31,8 +29,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.oursour.mobile.util.ReglasDespacho
 import cl.oursour.mobile.util.formatearPrecio
@@ -74,10 +74,9 @@ fun DespachoScreen(
                 .padding(padding)
                 .imePadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
+                .padding(16.dp)
         ) {
-            Text("¿Cómo quieres recibir tu pedido?", style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(12.dp))
+            TituloSeccion("¿Cómo quieres recibir tu pedido?", primero = true)
 
             OpcionEntrega(
                 titulo = "Despacho a domicilio",
@@ -85,17 +84,15 @@ fun DespachoScreen(
                 seleccionada = !checkoutViewModel.retiroEnTienda,
                 onClick = { checkoutViewModel.cambiarRetiroEnTienda(false) }
             )
-            Spacer(Modifier.height(8.dp))
             OpcionEntrega(
                 titulo = "Retiro en tienda",
                 detalle = "Gratis · ${checkoutViewModel.direccionTienda}",
                 seleccionada = checkoutViewModel.retiroEnTienda,
-                onClick = { checkoutViewModel.cambiarRetiroEnTienda(true) }
+                onClick = { checkoutViewModel.cambiarRetiroEnTienda(true) },
+                modifier = Modifier.padding(top = 8.dp)
             )
 
-            Spacer(Modifier.height(24.dp))
-            Text("Datos de contacto", style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(8.dp))
+            TituloSeccion("Datos de contacto")
             OutlinedTextField(
                 value = checkoutViewModel.nombreReceptor,
                 onValueChange = { checkoutViewModel.cambiarNombreReceptor(it) },
@@ -103,7 +100,6 @@ fun DespachoScreen(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = checkoutViewModel.telefono,
                 onValueChange = { checkoutViewModel.cambiarTelefono(it) },
@@ -115,9 +111,7 @@ fun DespachoScreen(
             )
 
             if (!checkoutViewModel.retiroEnTienda) {
-                Spacer(Modifier.height(24.dp))
-                Text("Dirección de despacho", style = MaterialTheme.typography.titleLarge)
-                Spacer(Modifier.height(8.dp))
+                TituloSeccion("Dirección de despacho")
                 OutlinedTextField(
                     value = checkoutViewModel.direccion,
                     onValueChange = { checkoutViewModel.cambiarDireccion(it) },
@@ -125,8 +119,12 @@ fun DespachoScreen(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(Modifier.height(12.dp))
-                Text("Comuna (Región Metropolitana)", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "Comuna (Región Metropolitana)",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     checkoutViewModel.comunas.forEach { comuna ->
                         FilterChip(
@@ -139,18 +137,37 @@ fun DespachoScreen(
             }
 
             checkoutViewModel.errorDespacho?.let {
-                Spacer(Modifier.height(12.dp))
-                Text(it, color = MaterialTheme.colorScheme.error)
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
             }
-            Spacer(Modifier.height(24.dp))
         }
     }
 }
 
+// Título de cada bloque del formulario
 @Composable
-private fun OpcionEntrega(titulo: String, detalle: String, seleccionada: Boolean, onClick: () -> Unit) {
+private fun TituloSeccion(texto: String, primero: Boolean = false) {
+    Text(
+        text = texto,
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = if (primero) 0.dp else 24.dp, bottom = 8.dp)
+    )
+}
+
+@Composable
+private fun OpcionEntrega(
+    titulo: String,
+    detalle: String,
+    seleccionada: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(
-        modifier = Modifier.fillMaxWidth().selectable(selected = seleccionada, onClick = onClick),
+        modifier = modifier.fillMaxWidth().selectable(selected = seleccionada, onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = if (seleccionada) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer
         )
@@ -158,8 +175,8 @@ private fun OpcionEntrega(titulo: String, detalle: String, seleccionada: Boolean
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             RadioButton(selected = seleccionada, onClick = onClick)
             Column {
-                Text(titulo, style = MaterialTheme.typography.titleMedium)
-                Text(detalle, style = MaterialTheme.typography.bodySmall)
+                Text(text = titulo, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(text = detalle, fontSize = 12.sp)
             }
         }
     }

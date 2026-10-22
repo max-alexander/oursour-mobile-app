@@ -3,16 +3,15 @@ package cl.oursour.mobile.view
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -23,13 +22,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.oursour.mobile.ui.theme.Verde
 import cl.oursour.mobile.util.formatearFecha
 import cl.oursour.mobile.util.formatearPrecio
-import cl.oursour.mobile.view.components.BotonPrincipal
 import cl.oursour.mobile.view.components.FilaResumen
 import cl.oursour.mobile.viewmodel.PedidosViewModel
 
@@ -50,19 +50,27 @@ fun PedidoConfirmadoScreen(
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding()
-            .padding(32.dp),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = Verde, modifier = Modifier.size(96.dp))
-        Spacer(Modifier.height(16.dp))
-        Text("¡Pedido confirmado!", style = MaterialTheme.typography.headlineSmall)
-        Text(
-            "Tu pago fue aprobado y tu pedido quedó registrado.",
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        Icon(
+            Icons.Filled.CheckCircle,
+            contentDescription = null,
+            tint = Verde,
+            modifier = Modifier.padding(bottom = 16.dp).size(96.dp)
         )
-        Spacer(Modifier.height(24.dp))
+        Text(
+            text = "¡Pedido confirmado!",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "Tu pago fue aprobado y tu pedido quedó registrado.",
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
 
         if (pedido != null) {
             Card(
@@ -80,11 +88,17 @@ fun PedidoConfirmadoScreen(
             }
         }
 
-        Spacer(Modifier.height(32.dp))
-        BotonPrincipal(texto = "Ver mis pedidos", onClick = onVerPedidos)
-        Spacer(Modifier.height(8.dp))
-        OutlinedButton(onClick = onInicio, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(14.dp)) {
-            Text("Volver al inicio")
+        Button(
+            onClick = onVerPedidos,
+            modifier = Modifier.padding(top = 32.dp).fillMaxWidth()
+        ) {
+            Text(text = "Ver mis pedidos")
+        }
+        OutlinedButton(
+            onClick = onInicio,
+            modifier = Modifier.padding(top = 8.dp).fillMaxWidth()
+        ) {
+            Text(text = "Volver al inicio")
         }
     }
 }
