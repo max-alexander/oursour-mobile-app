@@ -1,7 +1,6 @@
 package cl.oursour.mobile.viewmodel
 
 import android.app.Application
-import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,17 +27,15 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     var password by mutableStateOf("")
         private set
 
-    var error by mutableStateOf<String?>(null)
-        private set
+    // Controla si se muestra el mensaje "Credenciales inválidas"
+    var textoVisible by mutableStateOf(false)
 
     fun cambiarEmail(nuevoEmail: String) {
         email = nuevoEmail.trim()
-        error = null
     }
 
     fun cambiarPassword(nuevaPassword: String) {
         password = nuevaPassword
-        error = null
     }
 
     // Valida las credenciales contra el usuario en duro (admin).
@@ -46,35 +43,22 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     fun login(): Boolean {
         var validador = false
         if (email.equals(adminValido.email, ignoreCase = true) && password == passAdmin) {
+            SesionUsuario.iniciar(adminValido)
             validador = true
         }
         return validador
     }
 
-    fun iniciarSesion(onConsumidor: () -> Unit, onAdministrador: () -> Unit) {
-        if (email.isBlank() || password.isBlank()) {
-            error = "Completa el correo y la contraseña"
-            return
-        }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            error = "El correo no tiene un formato válido"
-            return
-        }
-
-        if (login()) {
-            SesionUsuario.iniciar(adminValido)
-            onAdministrador()
-            return
-        }
-
-        // Las consultas a Room se ejecutan dentro de una corrutina
+    // Valida a los clientes registrados en la base de datos local (Room).
+    // Las consultas a Room se ejecutan dentro de una corrutina.
+    fun loginConsumidor(onExito: () -> Unit) {
         viewModelScope.launch {
             val usuario = usuarioDao.buscarPorEmail(email.lowercase())
             if (usuario != null && usuario.password == password) {
                 SesionUsuario.iniciar(Usuario(usuario.nombre, usuario.email, Rol.CONSUMIDOR))
-                onConsumidor()
+                onExito()
             } else {
-                error = "Correo o contraseña incorrectos"
+                textoVisible = true
             }
         }
     }
