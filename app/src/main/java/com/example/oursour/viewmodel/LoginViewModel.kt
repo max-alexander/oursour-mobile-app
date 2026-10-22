@@ -33,10 +33,11 @@ class LoginViewModel: ViewModel() {
     }
 
 
+    // funcion para validar login
     val usuarioCorrecto = Usuario("admin", "123")
     fun login(): Boolean {
         var validador = false
-
+        //si mail y pass son correctos
         if(mail == usuarioCorrecto.mail && pass == usuarioCorrecto.pass){
             validador = true
         }
@@ -44,4 +45,10 @@ class LoginViewModel: ViewModel() {
 
 
     }
+
+    // credenciales invalidas
+
+    var textoVisible by mutableStateOf(false)
+
+
 }

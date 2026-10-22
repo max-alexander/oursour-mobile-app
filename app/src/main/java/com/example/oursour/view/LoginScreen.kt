@@ -4,18 +4,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.oursour.navigation.Routes
+import com.example.oursour.ui.theme.cafeClaro
 import com.example.oursour.viewmodel.LoginViewModel
 
 // vista del login
@@ -26,6 +33,7 @@ import com.example.oursour.viewmodel.LoginViewModel
 @Composable
 // para que la pantalla pueda usarse en cualqueir parte y ue siempre este con su controlador(viewmodel)
 fun LoginScreen(
+    navController: NavController,
     loginViewModel: LoginViewModel = viewModel() // parametro que ya tiene valor
                                                  // en rojo si falta dependencias
 ) {
@@ -84,11 +92,43 @@ fun LoginScreen(
                 println("bmp: Botón Presionado...") // iniciales para filtrar en logcat
                 println(loginViewModel.mail)
                 println(loginViewModel.pass)     // esto guarda el registro textual en logcat
-            },
-            modifier = Modifier.padding(top = 16.dp).fillMaxWidth()  // dp es densidad de pixel
-        ) {
-            Text(text = "Ingresar")
 
+                // validar login para mostrar o no el mensaje de error
+                loginViewModel.textoVisible = false  // con esto el texto desaparece si inicias bien
+
+                val validador = loginViewModel.login()
+
+                if(validador){
+                    //navegar
+                    navController.navigate(Routes.Home)
+
+                }else{
+                    loginViewModel.textoVisible = true
+                }
+            },
+            //fill max width ocupa to do el ancho disponible
+            modifier = Modifier.padding(top = 16.dp).fillMaxWidth().height(50.dp),  // dp es densidad de pixel
+            shape = RoundedCornerShape(5.dp),  // redondea los bordes ( en este caso los hace mas cuadrados xd)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = cafeClaro,     // color casilla contenedora
+                contentColor = Color.Black,     // color del texto dentro de la casilla
+            )
+        ) {
+            Text(text = "Ingresar", fontSize = 20.sp)  // texto boton
+
+
+        }
+
+        // texto para cunado los datos esten mal
+
+        if (loginViewModel.textoVisible) {
+            Text(
+                text = "Credenciales Inválidas",
+                fontSize = 20.sp,  // sp pixeles independientes de la escala
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 16.dp),
+                color = Color.Red
+            )
         }
     }
 }
