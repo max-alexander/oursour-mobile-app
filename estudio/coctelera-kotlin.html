@@ -55,6 +55,8 @@ body {
 }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
 .wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 20px; }
+/* Los hijos de grid no se ensanchan por su contenido (pestañas, código, selects) */
+.wrap > *, .top-in > *, .ticket > *, .dos-col > *, .campos > * { min-width: 0; }
 h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
 h1 { font-size: clamp(30px, 6vw, 46px); font-weight: 800; letter-spacing: -0.02em; }
 h2 { font-size: 24px; font-weight: 700; }
@@ -193,6 +195,32 @@ textarea.editor { font: 13.5px/1.6 var(--font-mono); background: var(--code-bg);
 .informe .fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; border-bottom: 1px dashed var(--line); padding-bottom: 10px; }
 .informe .fila b { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
 
+/* Reportar una pregunta */
+.reporte { display: grid; gap: 8px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.link { background: none; border: 0; padding: 0; color: var(--muted); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; justify-self: start; }
+.link:hover { color: var(--ink); }
+
+/* Pauta con casillas (modo pareja) */
+.pauta { display: grid; gap: 6px; }
+.pauta label { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); cursor: pointer; }
+.pauta input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--gold); }
+.marcador { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.marcador div { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: var(--surface); display: grid; gap: 2px; }
+.marcador div.turno { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
+.marcador b { font: 800 26px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.campo { display: grid; gap: 4px; }
+.campo input[type="text"], .campo select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.opciones-check { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.opciones-check label { display: flex; gap: 8px; align-items: center; }
+
+/* Presentación */
+.tema-pres { display: grid; gap: 10px; }
+.reparto { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; font-variant-numeric: tabular-nums; }
+.reparto div { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: var(--surface); }
+.reparto b { display: block; font: 800 22px/1.1 var(--font-display); }
+.dominio { font: 600 13px var(--font-mono); color: var(--muted); }
+
 @media (max-width: 520px) {
   .ticket { padding: 20px 14px 16px; }
   .pregunta { font-size: 18px; }
@@ -210,7 +238,10 @@ textarea.editor { font: 13.5px/1.6 var(--font-mono); background: var(--code-bg);
       <button class="tab" role="tab" id="t-inicio" data-tab="inicio" aria-selected="true">Inicio</button>
       <button class="tab" role="tab" id="t-teoria" data-tab="teoria" aria-selected="false">Preguntas técnicas</button>
       <button class="tab" role="tab" id="t-donde" data-tab="donde" aria-selected="false">¿Dónde está?</button>
+      <button class="tab" role="tab" id="t-explicar" data-tab="explicar" aria-selected="false">Explicar código</button>
       <button class="tab" role="tab" id="t-vivo" data-tab="vivo" aria-selected="false">Programar en vivo</button>
+      <button class="tab" role="tab" id="t-pareja" data-tab="pareja" aria-selected="false">En pareja</button>
+      <button class="tab" role="tab" id="t-presentacion" data-tab="presentacion" aria-selected="false">Presentación</button>
       <button class="tab" role="tab" id="t-simulacro" data-tab="simulacro" aria-selected="false">Simulacro</button>
     </nav>
   </div>
@@ -220,7 +251,10 @@ textarea.editor { font: 13.5px/1.6 var(--font-mono); background: var(--code-bg);
   <section id="p-inicio"></section>
   <section id="p-teoria" hidden></section>
   <section id="p-donde" hidden></section>
+  <section id="p-explicar" hidden></section>
   <section id="p-vivo" hidden></section>
+  <section id="p-pareja" hidden></section>
+  <section id="p-presentacion" hidden></section>
   <section id="p-simulacro" hidden></section>
 </main>
 
@@ -911,6 +945,385 @@ suspend fun existeSesion(): Boolean
     claves: ["@Query sobre la tabla sesion", "Devuelve Boolean (con EXISTS) o Int (con COUNT) y lo compara", "suspend porque devuelve un solo valor", "Sin cuerpo"] }
 ];
 
+// Fragmentos reales de la app para explicar en voz alta (etapa 4: "explicar cómo funciona una sección del código")
+const EXPLICAR = [
+  { id: "e1", tema: "Estado y ViewModel", titulo: "El botón Ingresar", archivo: "view/LoginScreen.kt",
+    codigo: `Button(
+    onClick = {
+        // En cada intento el mensaje parte oculto
+        loginViewModel.textoVisible = false
+        val validador = loginViewModel.login()
+        if (validador) {
+            onLoginAdmin()
+        } else {
+            loginViewModel.loginConsumidor(onLoginConsumidor)
+        }
+    },
+    modifier = Modifier.padding(top = 12.dp).fillMaxWidth().height(50.dp),
+    shape = RoundedCornerShape(5.dp)
+) {
+    Text(text = "Ingresar")
+}`,
+    claves: ["Primero oculta el mensaje de error (textoVisible = false) para que cada intento parta limpio", "login() valida la cuenta de admin en duro y devuelve true o false", "Si es true, llama a onLoginAdmin(): una función que entrega AppNavigation para navegar al panel", "Si no, loginConsumidor busca al cliente en Room dentro de una corrutina", "Si tampoco existe, el ViewModel activa textoVisible y la pantalla muestra 'Credenciales inválidas'", "Modificadores encadenados: padding arriba, todo el ancho, alto 50 dp, esquinas de 5 dp"] },
+
+  { id: "e2", tema: "Estado y ViewModel", titulo: "login() y guardarSesion()", archivo: "viewmodel/LoginViewModel.kt",
+    codigo: `fun login(): Boolean {
+    var validador = false
+    if (email.equals(adminValido.email, ignoreCase = true) && password == passAdmin) {
+        SesionUsuario.iniciar(adminValido)
+        guardarSesion(adminValido)
+        validador = true
+    }
+    return validador
+}
+
+// Guarda la "marquita" en la base de datos local para no pedir login al volver a abrir la app
+private fun guardarSesion(usuario: Usuario) {
+    viewModelScope.launch {
+        sesionDao.guardar(SesionEntity(email = usuario.email, nombre = usuario.nombre, rol = usuario.rol.name))
+    }
+}`,
+    claves: ["validador parte en false y hay un solo return (buena práctica)", "Compara con el admin en duro; ignoreCase permite mayúsculas en el correo", "SesionUsuario.iniciar guarda en memoria quién entró", "guardarSesion escribe la marquita en la tabla sesion", "Usa viewModelScope.launch porque sesionDao.guardar es suspend", "rol.name guarda el enum como texto (ADMINISTRADOR)"] },
+
+  { id: "e3", tema: "Room", titulo: "loginConsumidor()", archivo: "viewmodel/LoginViewModel.kt",
+    codigo: `// Valida a los clientes registrados en la base de datos local (Room).
+// Las consultas a Room se ejecutan dentro de una corrutina.
+fun loginConsumidor(onExito: () -> Unit) {
+    viewModelScope.launch {
+        // La consulta del DAO devuelve el usuario solo si el correo y la contraseña coinciden
+        val usuario = usuarioDao.login(email.lowercase(), password)
+        if (usuario != null) {
+            val consumidor = Usuario(usuario.nombre, usuario.email, Rol.CONSUMIDOR)
+            SesionUsuario.iniciar(consumidor)
+            guardarSesion(consumidor)
+            onExito()
+        } else {
+            textoVisible = true
+        }
+    }
+}`,
+    claves: ["Recibe onExito: la función para navegar al Home si el login es correcto", "viewModelScope.launch porque usuarioDao.login es suspend", "El correo se pasa en minúscula (así se guardó al registrarse)", "login devuelve UsuarioEntity? : null si no coinciden", "Si existe, convierte la entidad al modelo Usuario con rol CONSUMIDOR, inicia sesión y guarda la marquita", "Si es null, activa textoVisible para mostrar el error"] },
+
+  { id: "e4", tema: "Room", titulo: "SesionViewModel: ¿con qué pantalla parte la app?", archivo: "viewmodel/SesionViewModel.kt",
+    codigo: `class SesionViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val sesionDao = AppDatabase.obtener(application).sesionDao()
+
+    // Pantalla con la que parte la app. Es null mientras se consulta la base de datos.
+    var rutaInicial by mutableStateOf<String?>(null)
+        private set
+
+    init {
+        viewModelScope.launch {
+            val sesion = sesionDao.obtener()
+            if (sesion != null) {
+                val rol = Rol.valueOf(sesion.rol)
+                SesionUsuario.iniciar(Usuario(sesion.nombre, sesion.email, rol))
+                rutaInicial = if (rol == Rol.ADMINISTRADOR) Routes.ADMIN_PANEL else Routes.HOME
+            } else {
+                rutaInicial = Routes.BIENVENIDA
+            }
+        }
+    }
+
+    fun cerrarSesion() {
+        SesionUsuario.cerrar()
+        viewModelScope.launch {
+            sesionDao.borrar()
+        }
+    }
+}`,
+    claves: ["AndroidViewModel porque necesita el contexto para abrir Room", "rutaInicial es un estado que parte en null (todavía no se sabe)", "init se ejecuta al crear el ViewModel y consulta la tabla sesion en una corrutina", "Si hay marquita: recupera el usuario (Rol.valueOf convierte el texto en enum) y elige Home o panel admin", "Si no hay: parte en Bienvenida", "cerrarSesion borra la sesión en memoria y la fila en Room"] },
+
+  { id: "e5", tema: "Navegación", titulo: "El inicio de AppNavigation", archivo: "navigation/AppNavigation.kt",
+    codigo: `@Composable
+fun AppNavigation(navController: NavHostController = rememberNavController()) {
+
+    // Se crea aquí para que Despacho, Resumen y Pago compartan la MISMA instancia
+    val checkoutViewModel: CheckoutViewModel = viewModel()
+
+    // Revisa si quedó una sesión guardada en la base de datos local
+    val sesionViewModel: SesionViewModel = viewModel()
+
+    // Mientras se consulta la base de datos no se muestra nada (es casi instantáneo)
+    val rutaInicial = sesionViewModel.rutaInicial ?: return
+
+    fun cerrarSesion() {
+        sesionViewModel.cerrarSesion()
+        navController.navigate(Routes.BIENVENIDA) {
+            popUpTo(0) { inclusive = true }
+        }
+    }
+
+    fun entrarA(ruta: String) {
+        navController.navigate(ruta) {
+            popUpTo(Routes.BIENVENIDA) { inclusive = true }
+        }
+    }
+
+    NavHost(navController = navController, startDestination = rutaInicial) {
+        // composable(Routes.BIENVENIDA) { ... }, composable(Routes.LOGIN) { ... } ...
+    }
+}`,
+    claves: ["rememberNavController recuerda el historial de navegación", "CheckoutViewModel se crea aquí para compartirlo entre Despacho, Resumen y Pago", "?: return: si rutaInicial todavía es null, no dibuja nada hasta que Room responda", "cerrarSesion borra la marquita y navega a Bienvenida; popUpTo(0) borra todo el historial", "entrarA navega borrando Bienvenida y Login del historial (atrás no vuelve al login)", "NavHost usa rutaInicial como startDestination y registra cada ruta con composable"] },
+
+  { id: "e6", tema: "Room", titulo: "AppDatabase: singleton y migración", archivo: "data/local/AppDatabase.kt",
+    codigo: `companion object {
+    // Versión 1 -> 2: se agrega la tabla "sesion" sin borrar los datos que ya existían
+    private val MIGRACION_1_2 = object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS sesion (id INTEGER NOT NULL, email TEXT NOT NULL, " +
+                    "nombre TEXT NOT NULL, rol TEXT NOT NULL, PRIMARY KEY(id))"
+            )
+        }
+    }
+
+    // Una sola instancia de la base de datos para toda la app (patrón Singleton)
+    @Volatile
+    private var instancia: AppDatabase? = null
+
+    fun obtener(context: Context): AppDatabase {
+        return instancia ?: synchronized(this) {
+            val nueva = Room.databaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java,
+                "oursour.db"
+            ).addMigrations(MIGRACION_1_2).build()
+            instancia = nueva
+            nueva
+        }
+    }
+}`,
+    claves: ["companion object: se llama como AppDatabase.obtener(...) sin crear una instancia", "La migración pasa la base de la versión 1 a la 2 creando la tabla sesion con SQL", "Sin migración, la app se caería en teléfonos que ya tenían la versión 1", "Singleton: si ya existe la instancia la devuelve (?:); si no, la crea una sola vez", "@Volatile y synchronized evitan que dos hilos creen dos bases al mismo tiempo", "Room.databaseBuilder crea el archivo oursour.db y registra la migración"] },
+
+  { id: "e7", tema: "Room", titulo: "La consulta de login del DAO", archivo: "data/local/dao/UsuarioDao.kt",
+    codigo: `@Dao
+interface UsuarioDao {
+
+    @Insert
+    suspend fun insertar(usuario: UsuarioEntity)
+
+    // Devuelve un Flow (no lleva suspend): los usuarios van saliendo por este "tubito"
+    @Query("SELECT * FROM usuarios ORDER BY nombre")
+    fun listar(): Flow<List<UsuarioEntity>>
+
+    // :email y :password se reemplazan por los parámetros de la función (deben llamarse igual)
+    @Query(
+        """
+        SELECT * FROM usuarios
+        WHERE email = :email AND password = :password
+        LIMIT 1
+        """
+    )
+    suspend fun login(email: String, password: String): UsuarioEntity?
+}`,
+    claves: ["@Dao: interfaz que habla directo con la base; KSP genera el código", "@Insert genera el INSERT; es suspend porque se puede demorar", "listar devuelve Flow: se actualiza solo y por eso no lleva suspend", "Triple comilla para escribir la consulta en varias líneas", ":email y :password toman los parámetros de la función con el mismo nombre", "LIMIT 1 y UsuarioEntity? : devuelve un usuario o null"] },
+
+  { id: "e8", tema: "QR", titulo: "procesarCodigo()", archivo: "viewmodel/EscanerQrViewModel.kt",
+    codigo: `fun procesarCodigo(contenido: String): ResultadoQr {
+    val partes = contenido.trim().split(":")
+    val id = partes.getOrNull(2)?.toIntOrNull()
+
+    val resultado = if (partes.size == 3 && partes[0] == "OURSOUR" && id != null) {
+        when (partes[1]) {
+            "PRODUCTO" -> if (CatalogoRepository.buscarProducto(id) != null) ResultadoQr.AbrirProducto(id) else ResultadoQr.NoReconocido(contenido)
+            "RECETA" -> if (CatalogoRepository.buscarReceta(id) != null) ResultadoQr.AbrirReceta(id) else ResultadoQr.NoReconocido(contenido)
+            "INGREDIENTE" -> guardarIngrediente(id, contenido)
+            else -> ResultadoQr.NoReconocido(contenido)
+        }
+    } else {
+        ResultadoQr.NoReconocido(contenido)
+    }
+
+    ultimoResultado = resultado
+    return resultado
+}`,
+    claves: ["Recibe el texto que leyó la cámara, con formato OURSOUR:TIPO:ID", "split(\":\") lo separa en 3 partes", "getOrNull(2)?.toIntOrNull() saca el id sin caerse si no existe o no es número", "Valida que sean 3 partes, que parta con OURSOUR y que el id sea válido", "when decide según el tipo: abrir producto, abrir receta o guardar ingrediente", "Devuelve un ResultadoQr (sealed class) y lo guarda en ultimoResultado para mostrarlo"] },
+
+  { id: "e9", tema: "QR", titulo: "Abrir la cámara con ZXing", archivo: "view/EscanerQrScreen.kt",
+    codigo: `// Abre la cámara (CaptureActivity de ZXing) y recibe el texto leído.
+// La librería solicita el permiso de cámara automáticamente.
+val lanzadorEscaner = rememberLauncherForActivityResult(ScanContract()) { resultado ->
+    if (resultado.contents == null) {
+        cancelado = true
+    } else {
+        cancelado = false
+        manejarCodigo(resultado.contents)
+    }
+}
+
+BotonPrincipal(
+    texto = "Abrir cámara",
+    icono = Icons.Filled.CameraAlt,
+    onClick = {
+        val opciones = ScanOptions()
+            .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+            .setPrompt("Apunta la cámara al código QR")
+            .setBeepEnabled(true)
+            .setOrientationLocked(false)
+        lanzadorEscaner.launch(opciones)
+    }
+)`,
+    claves: ["rememberLauncherForActivityResult con ScanContract registra cómo abrir el escáner y qué hacer con el resultado", "resultado.contents es el texto del QR; null significa que el usuario canceló", "manejarCodigo llama a procesarCodigo del ViewModel y navega si corresponde", "ScanOptions configura: solo QR, mensaje en pantalla, sonido, orientación libre", "lanzadorEscaner.launch(opciones) abre la cámara", "El permiso CAMERA está declarado en el AndroidManifest"] },
+
+  { id: "e10", tema: "Room", titulo: "Agregar al carrito", archivo: "viewmodel/CarritoViewModel.kt",
+    codigo: `fun agregar(producto: Producto, cantidad: Int = 1) {
+    viewModelScope.launch {
+        val actual = carritoDao.buscarPorProducto(producto.id)
+        val nuevaCantidad = ((actual?.cantidad ?: 0) + cantidad).coerceAtMost(producto.stock)
+        if (nuevaCantidad > 0) {
+            carritoDao.guardar(CarritoItemEntity(producto.id, producto.nombre, producto.precio, nuevaCantidad))
+        }
+    }
+}`,
+    claves: ["cantidad = 1 es un valor por defecto", "Corrutina porque las funciones del DAO son suspend", "Busca si el producto ya está en el carrito", "actual?.cantidad ?: 0: si no está, parte de 0", "coerceAtMost(producto.stock) no deja pasar del stock", "guardar usa REPLACE: inserta o actualiza la fila del producto (productoId es la llave)"] },
+
+  { id: "e11", tema: "Estado y ViewModel", titulo: "El ícono del carrito con contador", archivo: "view/components/Componentes.kt",
+    codigo: `// Icono del carro con la cantidad de productos (leída desde Room)
+@Composable
+fun CarritoBoton(
+    onClick: () -> Unit,
+    carritoViewModel: CarritoViewModel = viewModel()
+) {
+    val unidades by carritoViewModel.unidades.collectAsState(initial = 0)
+    IconButton(onClick = onClick) {
+        BadgedBox(badge = {
+            if (unidades > 0) Badge { Text("\$unidades") }
+        }) {
+            Icon(Icons.Filled.ShoppingCart, contentDescription = "Carro de compras")
+        }
+    }
+}`,
+    claves: ["Componente reutilizable: se usa en la barra de varias pantallas", "Trae su ViewModel con = viewModel()", "unidades es un Flow<Int> del DAO (SUM de cantidades)", "collectAsState(initial = 0) lo convierte en estado; cuando cambia el carrito, el número se actualiza solo", "BadgedBox dibuja la burbujita solo si hay unidades", "onClick viene de afuera: la navegación la decide AppNavigation"] },
+
+  { id: "e12", tema: "Arquitectura", titulo: "Reglas de despacho", archivo: "util/Formato.kt",
+    codigo: `// Reglas de despacho definidas por el equipo
+object ReglasDespacho {
+    const val COSTO_DESPACHO = 3990
+    const val MONTO_ENVIO_GRATIS = 50000
+
+    fun calcular(subtotal: Int, esRetiroEnTienda: Boolean): Int {
+        return if (esRetiroEnTienda || subtotal >= MONTO_ENVIO_GRATIS || subtotal == 0) 0 else COSTO_DESPACHO
+    }
+}`,
+    claves: ["object: se usa sin instanciar (ReglasDespacho.calcular)", "const val: constantes que no cambian", "El despacho es gratis si retira en tienda, si el subtotal llega a 50.000 o si el carro está vacío", "Si no, cobra 3.990", "Está en util porque es lógica de negocio reutilizable, no de una pantalla"] },
+
+  { id: "e13", tema: "Tema y Scaffold", titulo: "OursourTheme", archivo: "ui/theme/Theme.kt",
+    codigo: `@Composable
+fun OursourTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit,
+) {
+    MaterialTheme(
+        colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
+        typography = Typography,
+        content = content,
+    )
+}`,
+    claves: ["Es el tema de toda la app; MainActivity envuelve todo con OursourTheme { }", "content: @Composable () -> Unit es lo que va adentro (la app completa)", "isSystemInDarkTheme() detecta si el teléfono está en modo oscuro", "Elige el esquema de colores oscuro o claro (definidos con lightColorScheme/darkColorScheme)", "MaterialTheme aplica colores y tipografía a todos los componentes"] },
+
+  { id: "e14", tema: "Tema y Scaffold", titulo: "El Scaffold del Home", archivo: "view/HomeScreen.kt",
+    codigo: `Scaffold(
+    topBar = {
+        OurSourTopBar(titulo = "Our Sour", acciones = {
+            CarritoBoton(onClick = onCarrito)
+            IconButton(onClick = onCerrarSesion) {
+                Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
+            }
+        })
+    },
+    // Botón flotante para leer un código QR
+    floatingActionButton = {
+        FloatingActionButton(
+            onClick = onEscanearQr,
+            containerColor = MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.onSecondary,
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Icon(Icons.Filled.QrCodeScanner, contentDescription = "Escanear código QR")
+        }
+    },
+    containerColor = MaterialTheme.colorScheme.background
+) { padding ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp)
+    ) { /* contenido */ }
+}`,
+    claves: ["Scaffold: estructura con topBar, floatingActionButton y contenido", "topBar: barra reutilizable con el carrito y cerrar sesión", "FloatingActionButton con colores del tema y esquinas redondeadas; abre el escáner", "containerColor: fondo de la pantalla desde el tema", "padding del Scaffold obligatorio para no quedar bajo la barra; luego otro padding de 20 dp", "verticalScroll permite desplazar si el contenido no cabe"] },
+
+  { id: "e15", tema: "Room", titulo: "registrar()", archivo: "viewmodel/RegistroViewModel.kt",
+    codigo: `fun registrar(onExito: () -> Unit) {
+    val mensaje = validar()
+    if (mensaje != null) {
+        error = mensaje
+        return
+    }
+
+    viewModelScope.launch {
+        val correo = email.lowercase()
+        if (usuarioDao.buscarPorEmail(correo) != null) {
+            error = "Ya existe una cuenta con ese correo"
+            return@launch
+        }
+        usuarioDao.insertar(UsuarioEntity(correo, nombre.trim(), password))
+        SesionUsuario.iniciar(Usuario(nombre.trim(), correo, Rol.CONSUMIDOR))
+        sesionDao.guardar(SesionEntity(email = correo, nombre = nombre.trim(), rol = Rol.CONSUMIDOR.name))
+        onExito()
+    }
+}`,
+    claves: ["validar() devuelve un mensaje de error o null", "Si hay error lo muestra y corta con return", "Corrutina para usar el DAO", "Revisa que el correo no exista (es la llave primaria)", "return@launch sale solo de la corrutina", "Inserta el usuario, inicia sesión, guarda la marquita y navega con onExito"] },
+
+  { id: "e16", tema: "Gradle y KSP", titulo: "Room en Gradle", archivo: "gradle/libs.versions.toml + app/build.gradle.kts",
+    codigo: `// libs.versions.toml
+[versions]
+ksp = "2.1.0-1.0.29"
+room = "2.6.1"
+
+[libraries]
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+[plugins]
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+// app/build.gradle.kts
+plugins {
+    alias(libs.plugins.ksp)
+}
+dependencies {
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+}`,
+    claves: ["El .toml centraliza versiones: [versions], [libraries], [plugins]", "version.ref usa la variable de la versión", "KSP (Kotlin Symbol Processing) convierte las anotaciones de Room en código", "room-runtime: Room mientras la app corre; room-ktx: suspend y Flow", "room-compiler va con ksp(...) porque solo se usa al compilar", "alias(libs.plugins.ksp) activa el plugin en la app; después de cambiar hay que sincronizar"] }
+];
+
+// Etapa 1 de la pauta: lo que se explica mientras corre el video (máx. 7 minutos)
+const PRESENTACION = [
+  { id: "p1", titulo: "Organización de los paquetes",
+    claves: ["view (pantallas, components, admin)", "viewmodel", "navigation", "model", "data/local (Room: AppDatabase, dao, entity)", "data/repository", "data/remote (Retrofit, Unidad 3)", "ui/theme", "util"] },
+  { id: "p2", titulo: "Responsabilidad de cada paquete",
+    claves: ["view solo muestra y recibe acciones", "viewmodel tiene estado y lógica (MVVM)", "navigation define rutas y une rutas con pantallas", "data/local guarda en el teléfono", "repository entrega datos al ViewModel (catálogo en memoria)", "ui/theme da el estilo consistente"] },
+  { id: "p3", titulo: "Componentes gráficos utilizados",
+    claves: ["Scaffold con TopAppBar (OurSourTopBar), FloatingActionButton y SnackbarHost", "OutlinedTextField, Button, TextButton, Checkbox, RadioButton, FilterChip", "LazyColumn para listas y FlowRow para chips de ingredientes", "Card para productos, recetas y opciones del Home", "Badge en el carrito, AlertDialog para confirmar", "Image con painterResource para los productos y QR generado", "Íconos de Material, componentes reutilizables en Componentes.kt"] },
+  { id: "p4", titulo: "Dependencias incorporadas y su función",
+    claves: ["lifecycle-viewmodel-compose", "navigation-compose", "room-runtime, room-ktx, room-compiler con KSP", "zxing-android-embedded", "material-icons-extended", "retrofit + gson + okhttp (preparados para la Unidad 3)", "Versiones centralizadas en libs.versions.toml"] },
+  { id: "p5", titulo: "Implementación de la navegación",
+    claves: ["Routes con todas las rutas", "AppNavigation con rememberNavController y NavHost", "startDestination según la sesión guardada (SesionViewModel)", "Pantallas reciben funciones; AppNavigation navega", "popUpTo para no volver al login", "Rutas con argumentos (login?admin=, receta/{id})"] },
+  { id: "p6", titulo: "Base de datos local",
+    claves: ["Room con 6 tablas: usuarios, sesion, carrito, pedidos, ingredientes_frecuentes, eventos_busqueda", "Entidades con @Entity y @PrimaryKey; DAOs con @Insert y @Query", "suspend y Flow", "Sesión iniciada al reabrir la app", "Migración de versión 1 a 2", "Por qué local: datos del usuario en su teléfono; backend en la Unidad 3"] },
+  { id: "p7", titulo: "Lectura de códigos QR",
+    claves: ["ZXing con ScanContract y permiso CAMERA", "Formato propio OURSOUR:TIPO:ID", "procesarCodigo decide con when", "Abre producto o receta, o guarda ingrediente frecuente en Room", "La app también genera QR (QrImagen) en el detalle"] },
+  { id: "p8", titulo: "Otras decisiones técnicas",
+    claves: ["MVVM con un ViewModel por pantalla", "CheckoutViewModel compartido en el flujo de compra", "Tema propio con modo claro y oscuro", "Datos ficticios en CatalogoRepository (la app aún no se conecta al backend, como pide la pauta)", "Admin de prueba en duro", "Métricas del admin a partir de los eventos de búsqueda guardados"] }
+];
+
 /* =========================================================================
    Estado, almacenamiento y capacidades
    ========================================================================= */
@@ -922,6 +1335,7 @@ const S = {
   porTema: {},           // tema -> {ok, total}
   falladas: [],          // ids de MCQ/DONDE falladas
   vivoOk: [],            // ids de retos logrados
+  racha: {},             // id -> respuestas correctas seguidas (repaso inteligente)
   mejorNota: null,
   ticket: 0
 };
@@ -1080,6 +1494,7 @@ Responde SOLO con un objeto JSON:
 async function revisarSimulacro(items) {
   const partes = items.map((it, i) => {
     if (it.tipo === "abierta") return `ITEM ${i + 1} (id ${it.id}) — PREGUNTA TÉCNICA: ${it.q.p}\nPuntos clave: ${it.q.claves.join("; ")}\nRespuesta: ${it.respuesta || "(sin respuesta)"}`;
+    if (it.tipo === "explicar") return `ITEM ${i + 1} (id ${it.id}) — EXPLICAR CÓDIGO de ${it.q.archivo}:\n${it.q.codigo}\nPuntos clave: ${it.q.claves.join("; ")}\nExplicación del estudiante: ${it.respuesta || "(sin respuesta)"}`;
     return `ITEM ${i + 1} (id ${it.id}) — PROGRAMACIÓN EN VIVO: ${it.q.enunciado}\nCriterios: ${it.q.claves.join("; ")}\nSolución de referencia: ${it.q.solucion}\nCódigo original:\n${it.q.codigo}\nCódigo del estudiante:\n${it.respuesta || "(sin respuesta)"}`;
   }).join("\n\n");
   const prompt = `Eres profesor de Desarrollo de Aplicaciones Móviles y corriges un simulacro de prueba (preguntas técnicas individuales + programación en vivo). Sé justo y exigente como en una prueba real.
@@ -1106,14 +1521,18 @@ function lista(titulo, items) {
    Navegación entre pestañas
    ========================================================================= */
 
+const PANELES = ["inicio", "teoria", "donde", "explicar", "vivo", "pareja", "presentacion", "simulacro"];
 function irA(tab) {
   S.tab = tab;
   document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
-  for (const id of ["inicio", "teoria", "donde", "vivo", "simulacro"]) $("#p-" + id).hidden = id !== tab;
+  for (const id of PANELES) $("#p-" + id).hidden = id !== tab;
   if (tab === "inicio") renderInicio();
   if (tab === "teoria" && !$("#p-teoria").firstChild) renderTeoria();
   if (tab === "donde" && !$("#p-donde").firstChild) renderDonde();
+  if (tab === "explicar" && !$("#p-explicar").firstChild) renderExplicarLista();
   if (tab === "vivo" && !$("#p-vivo").firstChild) renderVivoLista();
+  if (tab === "pareja" && !$("#p-pareja").firstChild) renderPareja();
+  if (tab === "presentacion") renderPresentacion();
   if (tab === "simulacro" && !$("#p-simulacro").firstChild) renderSimInicio();
   window.scrollTo({ top: 0 });
 }
@@ -1150,8 +1569,11 @@ function renderInicio() {
     h("div", { class: "modos" },
       modoCard("teoria", "Etapa 3", "Preguntas técnicas", `${MCQ.length} de alternativas y ${ABIERTAS.length} para responder con tus palabras.`),
       modoCard("donde", "Etapa 4", "¿Dónde está?", `${DONDE.length} preguntas: en qué archivo y función vive cada cosa.`),
+      modoCard("explicar", "Etapa 4", "Explicar código", `${EXPLICAR.length} trozos reales de su app para explicar con tus palabras.`),
       modoCard("vivo", "Etapa 4", "Programar en vivo", `${RETOS.length} desafíos sobre el código real. Claude revisa tu solución.`),
-      modoCard("simulacro", "Ensayo", "Simulacro", "3 preguntas + 1 '¿dónde está?' + 1 desafío, con reloj y nota 1,0 a 7,0.")
+      modoCard("pareja", "Sin IA", "En pareja", "Uno pregunta con la pauta, el otro responde en voz alta. Lo más parecido a la prueba."),
+      modoCard("presentacion", "Etapa 1", "Presentación", "Repartan los 8 temas del video, escriban el guion y midan el tiempo."),
+      modoCard("simulacro", "Ensayo", "Simulacro", "3 preguntas + 1 '¿dónde está?' + 1 explicar + 1 desafío, con reloj y nota 1,0 a 7,0.")
     ),
     h("div", { class: "dos-col" },
       h("div", { class: "panel-box" },
@@ -1171,7 +1593,7 @@ function renderInicio() {
         rankingNodo()
       )
     ),
-    h("p", { class: "aviso" }, "Recuerda la pauta: en la etapa 4 te pueden pedir identificar dónde está una funcionalidad, explicar un trozo de código, modificar algo existente o implementar algo pequeño. Practica explicando en voz alta lo que escribes.")
+    h("p", { class: "aviso" }, "Recuerda la pauta: en la etapa 4 te pueden pedir identificar dónde está una funcionalidad, explicar un trozo de código, modificar algo existente o implementar algo pequeño. Haz también los desafíos en Android Studio, en una rama de práctica, y comprueba que la app compila: allá no hay quien acepte código 'casi bien'.")
   ));
 }
 function modoCard(tab, eyebrow, titulo, texto) {
@@ -1207,7 +1629,7 @@ async function refrescarPerfiles() {
    Motor de alternativas (Preguntas técnicas y ¿Dónde está?)
    ========================================================================= */
 
-function tarjetaMCQ(q, { etiqueta, onSiguiente }) {
+function tarjetaMCQ(q, { etiqueta, onSiguiente, onRespondida }) {
   const correcta = q.o[q.c];
   const opciones = mezclar(q.o);
   const ticket = h("article", { class: "ticket" });
@@ -1229,7 +1651,9 @@ function tarjetaMCQ(q, { etiqueta, onSiguiente }) {
     const f = new Set(S.falladas);
     ok ? f.delete(q.id) : f.add(q.id);
     S.falladas = [...f];
+    S.racha[q.id] = ok ? (S.racha[q.id] || 0) + 1 : 0;
     guardar();
+    if (onRespondida) onRespondida();
     explica.replaceChildren(h("div", { class: "explica " + (ok ? "ok" : "bad") },
       h("b", {}, ok ? "¡Correcto! +10" : "Era: " + correcta),
       h("p", { html: conCodigo(q.e) })));
@@ -1239,14 +1663,82 @@ function tarjetaMCQ(q, { etiqueta, onSiguiente }) {
 
   ticket.append(
     h("div", { class: "ticket-head" }, h("span", { class: "eyebrow" }, etiqueta + " Nº " + nTicket()), h("span", { class: "chip" }, q.tema)),
-    h("p", { class: "pregunta", html: conCodigo(q.p) }), opts, explica, acciones);
+    h("p", { class: "pregunta", html: conCodigo(q.p) }), opts, explica, acciones, botonReportar(q.id));
   return ticket;
 }
 
+// Repaso inteligente: lo que fallas aparece 3 veces por vuelta, lo nuevo 2,
+// lo que respondiste bien 1 vez, y lo dominado (3 seguidas) a veces se salta.
+function pesoRepaso(id) {
+  const r = S.racha[id];
+  if (r === undefined) return 2;
+  if (r === 0) return 3;
+  if (r >= 3) return Math.random() < 0.5 ? 1 : 0;
+  return 1;
+}
 function siguienteDeMazo(estado, pool) {
-  if (!estado.deck.length) estado.deck = mezclar(pool.map(q => q.id));
+  if (!estado.deck.length) {
+    let deck = [];
+    for (const q of pool) for (let i = 0; i < pesoRepaso(q.id); i++) deck.push(q.id);
+    if (!deck.length) deck = pool.map(q => q.id);
+    deck = mezclar(deck);
+    // Evita la misma pregunta dos veces seguidas
+    for (let i = 1; i < deck.length; i++) {
+      if (deck[i] === deck[i - 1]) {
+        const j = deck.findIndex((x, k) => k > i && x !== deck[i]);
+        if (j > 0) [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+    }
+    if (estado.ultima && deck[0] === estado.ultima && deck.length > 1) deck.push(deck.shift());
+    estado.deck = deck;
+  }
   const id = estado.deck.shift();
+  estado.ultima = id;
   return pool.find(q => q.id === id);
+}
+function dominadas(pool) { return pool.filter(q => (S.racha[q.id] || 0) >= 2).length; }
+function nodoDominio(pool) { return h("span", { class: "dominio" }, `Dominadas: ${dominadas(pool)} de ${pool.length} (2+ correctas seguidas)`); }
+
+/* ---------- Reportar una pregunta con error ---------- */
+
+function botonReportar(id) {
+  const caja = h("div", { class: "reporte", hidden: true });
+  const btn = h("button", { class: "link", type: "button" }, "¿Esta pregunta está mal? Repórtala");
+  btn.addEventListener("click", () => {
+    btn.hidden = true;
+    const ta = h("textarea", { id: "rep-" + id, rows: 3, placeholder: "¿Qué está mal? Ej: el profe dijo otra cosa, la función se llama distinto…" });
+    const estado = h("p", { class: "small muted", role: "status" });
+    const enviar = h("button", { class: "btn sec", type: "button" }, "Enviar reporte");
+    enviar.addEventListener("click", async () => {
+      const texto = ta.value.trim();
+      if (texto.length < 5) { estado.textContent = "Cuenta un poco qué está mal."; return; }
+      enviar.disabled = true;
+      const ok = await guardarReporte(id, texto);
+      estado.textContent = ok ? "Reporte enviado. Se revisará en la próxima actualización." : `No se pudo enviar desde aquí. Avísale a quien mantiene el juego: pregunta ${id}.`;
+      if (ok) { ta.disabled = true; } else { enviar.disabled = false; }
+    });
+    caja.replaceChildren(h("label", { for: "rep-" + id, class: "small muted" }, `Reporte de la pregunta ${id}`), ta, h("div", { class: "acciones" }, enviar), estado);
+    caja.hidden = false;
+    ta.focus();
+  });
+  return h("div", {}, btn, caja);
+}
+let reportesCola = Promise.resolve();
+function guardarReporte(id, texto) {
+  // Cada persona escribe solo su propio documento reportes/<id>; se encolan para no pisarse
+  const tarea = reportesCola.then(async () => {
+    if (!CAP.db || !CAP.uid) return false;
+    try {
+      const ref = CAP.db.doc("reportes/" + CAP.uid);
+      const snap = await ref.get();
+      const items = snap.exists && Array.isArray(snap.data().items) ? snap.data().items.slice() : [];
+      items.push({ pregunta: id, texto: texto.slice(0, 1000), fecha: Date.now() });
+      await ref.set({ items: items.slice(-100) });
+      return true;
+    } catch (e) { return false; }
+  });
+  reportesCola = tarea.catch(() => false);
+  return tarea;
 }
 
 /* ---------- Preguntas técnicas ---------- */
@@ -1267,8 +1759,11 @@ function renderTeoria() {
   if (S.falladas.length && teoriaEstado.modo === "alt") filtros.push("Mis errores");
   const pool = poolTeoria();
   const zona = h("div");
+  const dom = h("div");
+  const pintarDom = () => dom.replaceChildren(teoriaEstado.modo === "alt" ? nodoDominio(pool) : h("span", { class: "dominio" }, "Responde como en la prueba oral: Claude corrige y te dice qué faltó."));
+  pintarDom();
   p.append(h("div", { class: "wrap" },
-    h("div", {}, h("span", { class: "eyebrow" }, "Etapa 3"), h("h2", {}, "Preguntas técnicas")),
+    h("div", {}, h("span", { class: "eyebrow" }, "Etapa 3"), h("h2", {}, "Preguntas técnicas"), dom),
     h("div", { class: "chips", role: "group", "aria-label": "Tipo de pregunta" },
       h("button", { class: "chip" + (teoriaEstado.modo === "alt" ? " on" : ""), onclick: () => { teoriaEstado.modo = "alt"; teoriaEstado.deck = []; renderTeoria(); } }, "Alternativas"),
       h("button", { class: "chip" + (teoriaEstado.modo === "abierta" ? " on" : ""), onclick: () => { teoriaEstado.modo = "abierta"; if (teoriaEstado.tema === "Mis errores") teoriaEstado.tema = "Todos"; teoriaEstado.deck = []; renderTeoria(); } }, "Con mis palabras (como en la prueba)")),
@@ -1280,7 +1775,7 @@ function renderTeoria() {
     const q = siguienteDeMazo(teoriaEstado, poolTeoria());
     if (!q) { renderTeoria(); return; }
     zona.replaceChildren(teoriaEstado.modo === "alt" || teoriaEstado.tema === "Mis errores"
-      ? tarjetaMCQ(q, { etiqueta: "Comanda", onSiguiente: siguiente })
+      ? tarjetaMCQ(q, { etiqueta: "Comanda", onSiguiente: siguiente, onRespondida: pintarDom })
       : tarjetaAbierta(q, siguiente));
   };
   siguiente();
@@ -1314,7 +1809,7 @@ function tarjetaAbierta(q, onSiguiente) {
     h("div", { class: "ticket-head" }, h("span", { class: "eyebrow" }, "Pregunta oral Nº " + nTicket()), h("span", { class: "chip" }, q.tema)),
     h("p", { class: "pregunta" }, q.p),
     h("label", { for: "resp-" + q.id, class: "small muted" }, "Tu respuesta"), ta,
-    h("div", { class: "acciones" }, btnRev, btnSig), salida);
+    h("div", { class: "acciones" }, btnRev, btnSig), salida, botonReportar(q.id));
 }
 function modelo(q) {
   return h("div", { class: "explica" }, h("b", {}, "Puntos que deberías mencionar"),
@@ -1327,11 +1822,14 @@ const dondeEstado = { deck: [] };
 function renderDonde() {
   const p = $("#p-donde");
   const zona = h("div");
+  const dom = h("div");
+  const pintarDom = () => dom.replaceChildren(nodoDominio(DONDE));
+  pintarDom();
   p.replaceChildren(h("div", { class: "wrap" },
-    h("div", {}, h("span", { class: "eyebrow" }, "Etapa 4"), h("h2", {}, "¿Dónde está?")),
+    h("div", {}, h("span", { class: "eyebrow" }, "Etapa 4"), h("h2", {}, "¿Dónde está?"), dom),
     h("p", { class: "muted" }, "El profe te va a pedir abrir el archivo exacto. Antes de elegir, intenta decir en voz alta la carpeta, el archivo y la función."),
     zona));
-  const siguiente = () => zona.replaceChildren(tarjetaMCQ(siguienteDeMazo(dondeEstado, DONDE), { etiqueta: "Búsqueda", onSiguiente: siguiente }));
+  const siguiente = () => zona.replaceChildren(tarjetaMCQ(siguienteDeMazo(dondeEstado, DONDE), { etiqueta: "Búsqueda", onSiguiente: siguiente, onRespondida: pintarDom }));
   siguiente();
 }
 
@@ -1406,17 +1904,245 @@ function renderReto(r) {
       h("p", { html: conCodigo(r.enunciado) }),
       h("div", { class: "code-wrap" }, h("div", { class: "code-label" }, h("label", { for: "ed-" + r.id }, "Tu código (edita aquí)"), h("span", {}, "Tab = 4 espacios")), ta),
       h("div", { class: "acciones" }, btnRev, btnPista, btnSol),
-      salida, solucion)));
+      salida, solucion, botonReportar(r.id))));
   ta.focus();
   window.scrollTo({ top: 0 });
 }
 
 /* =========================================================================
-   SIMULACRO
+   EXPLICAR CÓDIGO
    ========================================================================= */
 
+function preguntaExplicar(e) {
+  return { id: e.id, tema: e.tema, claves: e.claves,
+    p: `Explica qué hace este código de su app (${e.archivo}) y por qué está hecho así:\n\n${e.codigo}` };
+}
+
+function renderExplicarLista() {
+  const p = $("#p-explicar");
+  p.replaceChildren(h("div", { class: "wrap" },
+    h("div", {}, h("span", { class: "eyebrow" }, "Etapa 4"), h("h2", {}, "Explicar código")),
+    h("p", { class: "muted" }, "El profe abre un archivo y te pide que expliques qué hace. Aquí ves trozos reales de su app: explícalos con tus palabras, como si hablaras, y " + (CAP.sample ? "Claude te dice si se entendió." : "compara con la pauta.")),
+    h("div", { class: "acciones" }, h("button", { class: "btn oro", onclick: () => renderExplicar(mezclar(EXPLICAR)[0]) }, "Uno al azar")),
+    h("div", { class: "retos" }, EXPLICAR.map(e => h("button", { class: "reto", onclick: () => renderExplicar(e) },
+      h("b", {}, e.titulo), h("span", { class: "arch" }, e.archivo), h("span", { class: "estado" }, h("span", { class: "chip" }, e.tema)))))));
+}
+
+function renderExplicar(e) {
+  const q = preguntaExplicar(e);
+  const ta = h("textarea", { id: "exp-" + e.id, rows: 7, placeholder: "Ej: Este botón primero oculta el mensaje de error, después…" });
+  const salida = h("div");
+  const btnRev = h("button", { class: "btn oro" }, CAP.sample ? "Corregir con Claude" : "Ver pauta");
+  btnRev.addEventListener("click", async () => {
+    const r = ta.value.trim();
+    if (!CAP.sample) { salida.replaceChildren(modelo(e)); return; }
+    if (r.length < 30) { salida.replaceChildren(h("p", { class: "aviso" }, "Explica un poco más: qué hace cada parte y por qué.")); return; }
+    btnRev.disabled = true;
+    salida.replaceChildren(pensando("Claude está leyendo tu explicación…"));
+    try {
+      const fb = await revisarAbierta(q, r);
+      const pts = Math.max(0, Math.min(10, Math.round(Number(fb.puntaje) || 0)));
+      sumar(e.tema, pts >= 6, pts); guardar();
+      salida.replaceChildren(h("div", { class: "fb" },
+        h("div", { class: "fb-head" }, h("span", { class: "nota" }, pts + "/10"), sello(fb.veredicto), h("span", { class: "small muted" }, "+" + pts + " pts")),
+        lista("Bien", fb.bien), lista("Te faltó", fb.falto),
+        fb.respuesta_modelo ? h("div", {}, h("h4", {}, "Así lo explicaría alguien que lo domina"), h("p", { html: conCodigo(fb.respuesta_modelo) })) : null));
+    } catch (err) {
+      salida.replaceChildren(h("p", { class: "aviso" }, textoError(err)), modelo(e));
+    }
+    btnRev.disabled = false;
+  });
+  $("#p-explicar").replaceChildren(h("div", { class: "wrap" },
+    h("div", { class: "acciones" },
+      h("button", { class: "btn sec", onclick: renderExplicarLista }, "← Todos los fragmentos"),
+      h("button", { class: "btn sec", onclick: () => renderExplicar(mezclar(EXPLICAR.filter(x => x.id !== e.id))[0]) }, "Otro al azar")),
+    h("article", { class: "ticket" },
+      h("div", { class: "ticket-head" }, h("span", { class: "eyebrow" }, "Explicar · " + e.archivo), h("span", { class: "chip" }, e.tema)),
+      h("h2", {}, e.titulo),
+      bloqueCodigo(e.archivo, e.codigo),
+      h("label", { for: "exp-" + e.id, class: "small muted" }, "¿Qué hace este código y por qué está hecho así?"), ta,
+      h("div", { class: "acciones" }, btnRev, CAP.sample ? h("button", { class: "btn sec", onclick: () => salida.replaceChildren(modelo(e)) }, "Ver pauta") : null),
+      salida, botonReportar(e.id))));
+  window.scrollTo({ top: 0 });
+}
+
+/* =========================================================================
+   EN PAREJA (sin IA: uno pregunta, el otro responde en voz alta)
+   ========================================================================= */
+
+const CLAVE_PAREJA = "coctelera-kotlin:pareja";
+const pareja = { nombres: ["Integrante 1", "Integrante 2"], tipos: { abierta: true, donde: true, explicar: true }, puntos: [0, 0], rondas: [0, 0], turno: 0, actual: null, deck: [], enCurso: false };
+function cargarPareja() {
+  try { const d = JSON.parse(localStorage.getItem(CLAVE_PAREJA) || "null"); if (d) Object.assign(pareja, d, { actual: null, deck: [] }); } catch (e) {}
+}
+function guardarPareja() {
+  try { const { actual, deck, ...resto } = pareja; localStorage.setItem(CLAVE_PAREJA, JSON.stringify(resto)); } catch (e) {}
+}
+
+function itemsPareja() {
+  const items = [];
+  if (pareja.tipos.abierta) ABIERTAS.forEach(q => items.push({ tipo: "abierta", q, pauta: q.claves }));
+  if (pareja.tipos.donde) DONDE.forEach(q => {
+    const [archivo, funcion] = q.o[q.c].split(" → ");
+    items.push({ tipo: "donde", q, pauta: funcion ? ["Archivo: " + archivo, "Función o elemento: " + funcion] : ["Respuesta: " + archivo] });
+  });
+  if (pareja.tipos.explicar) EXPLICAR.forEach(e => items.push({ tipo: "explicar", q: e, pauta: e.claves }));
+  return items;
+}
+
+function renderPareja() {
+  const p = $("#p-pareja");
+  if (!pareja.enCurso) {
+    const n0 = h("input", { type: "text", id: "par-n0", value: pareja.nombres[0], maxlength: 30 });
+    const n1 = h("input", { type: "text", id: "par-n1", value: pareja.nombres[1], maxlength: 30 });
+    const tipo = (k, txt) => {
+      const c = h("input", { type: "checkbox", id: "par-t-" + k });
+      c.checked = pareja.tipos[k];
+      c.addEventListener("change", () => { pareja.tipos[k] = c.checked; });
+      return h("label", { for: "par-t-" + k }, c, txt);
+    };
+    p.replaceChildren(h("div", { class: "wrap" },
+      h("div", {}, h("span", { class: "eyebrow" }, "Sin IA, como en la prueba"), h("h2", {}, "En pareja")),
+      h("p", { class: "muted" }, "Uno hace de profe: lee la pregunta en voz alta y es el único que mira la pauta. El otro responde hablando, sin mirar la pantalla ni apuntes. Después se cambian los roles."),
+      h("article", { class: "ticket" },
+        h("div", { class: "campos" },
+          h("div", { class: "campo" }, h("label", { for: "par-n0", class: "small muted" }, "Integrante 1"), n0),
+          h("div", { class: "campo" }, h("label", { for: "par-n1", class: "small muted" }, "Integrante 2"), n1)),
+        h("div", {}, h("p", { class: "small muted" }, "Qué preguntar"),
+          h("div", { class: "opciones-check" }, tipo("abierta", "Preguntas técnicas"), tipo("donde", "¿Dónde está?"), tipo("explicar", "Explicar código"))),
+        h("div", { class: "acciones" }, h("button", { class: "btn oro", onclick: () => {
+          pareja.nombres = [n0.value.trim() || "Integrante 1", n1.value.trim() || "Integrante 2"];
+          if (!itemsPareja().length) { pareja.tipos.abierta = true; }
+          Object.assign(pareja, { puntos: [0, 0], rondas: [0, 0], turno: 0, deck: [], enCurso: true });
+          guardarPareja(); siguientePareja();
+        } }, "Empezar")))));
+    return;
+  }
+  const it = pareja.actual;
+  const responde = pareja.nombres[pareja.turno], pregunta = pareja.nombres[1 - pareja.turno];
+  const pautaCaja = h("div", { hidden: true });
+  const checks = it.pauta.map((c, i) => { const x = h("input", { type: "checkbox", id: "pp-" + i }); return { x, nodo: h("label", { for: "pp-" + i }, x, h("span", { html: conCodigo(c) })) }; });
+  const btnMostrar = h("button", { class: "btn", onclick: () => { pautaCaja.hidden = false; btnMostrar.hidden = true; } }, "Mostrar pauta (solo quien pregunta)");
+  pautaCaja.append(
+    h("p", { class: "small muted" }, `Marca lo que ${responde} dijo bien:`),
+    h("div", { class: "pauta" }, checks.map(c => c.nodo)),
+    it.tipo === "donde" ? h("p", { class: "small muted", html: conCodigo(it.q.e) }) : null,
+    h("div", { class: "acciones" },
+      h("button", { class: "btn oro", onclick: () => {
+        const pts = Math.round(checks.filter(c => c.x.checked).length / checks.length * 10);
+        pareja.puntos[pareja.turno] += pts; pareja.rondas[pareja.turno]++;
+        pareja.turno = 1 - pareja.turno; guardarPareja(); siguientePareja();
+      } }, "Registrar y cambiar de rol")));
+  const cuerpo = it.tipo === "explicar"
+    ? [h("h3", {}, it.q.titulo), bloqueCodigo(it.q.archivo, it.q.codigo), h("p", { class: "pregunta" }, "¿Qué hace este código y por qué está hecho así?")]
+    : [h("p", { class: "pregunta", html: conCodigo(it.q.p) })];
+  const etiqueta = { abierta: "Pregunta técnica", donde: "¿Dónde está?", explicar: "Explicar código" }[it.tipo];
+  p.replaceChildren(h("div", { class: "wrap" },
+    h("div", { class: "marcador" }, [0, 1].map(i => h("div", { class: i === pareja.turno ? "turno" : "" },
+      h("span", { class: "small muted" }, pareja.nombres[i] + (i === pareja.turno ? " · responde" : " · pregunta")),
+      h("b", {}, pareja.rondas[i] ? (pareja.puntos[i] / pareja.rondas[i]).toFixed(1).replace(".", ",") : "–"),
+      h("span", { class: "small muted" }, `promedio en ${pareja.rondas[i]} ronda${pareja.rondas[i] === 1 ? "" : "s"}`)))),
+    h("article", { class: "ticket" },
+      h("div", { class: "ticket-head" }, h("span", { class: "eyebrow" }, `${pregunta} pregunta → ${responde} responde`), h("span", { class: "chip" }, etiqueta)),
+      cuerpo, h("div", { class: "acciones" }, btnMostrar, h("button", { class: "btn sec", onclick: siguientePareja }, "Saltar")), pautaCaja),
+    h("div", { class: "acciones" }, h("button", { class: "btn sec", onclick: () => { pareja.enCurso = false; guardarPareja(); renderPareja(); } }, "Terminar sesión"))));
+}
+function siguientePareja() {
+  const pool = itemsPareja();
+  if (!pareja.deck.length) pareja.deck = mezclar(pool.map((_, i) => i));
+  pareja.actual = pool[pareja.deck.shift()];
+  renderPareja();
+  window.scrollTo({ top: 0 });
+}
+
+/* =========================================================================
+   PRESENTACIÓN (etapa 1: explicar mientras corre el video)
+   ========================================================================= */
+
+const CLAVE_PRES = "coctelera-kotlin:presentacion";
+const PALABRAS_POR_MIN = 130;
+let pres = { temas: {} };
+function cargarPres() { try { const d = JSON.parse(localStorage.getItem(CLAVE_PRES) || "null"); if (d) pres = d; } catch (e) {} }
+let presTimer = null;
+function guardarPres() { clearTimeout(presTimer); presTimer = setTimeout(() => { try { localStorage.setItem(CLAVE_PRES, JSON.stringify(pres)); } catch (e) {} }, 400); }
+function palabras(t) { return (t || "").trim().split(/\s+/).filter(Boolean).length; }
+function segundos(t) { return Math.round(palabras(t) / PALABRAS_POR_MIN * 60); }
+
+async function revisarPresentacion(tema, texto) {
+  const prompt = `Eres profesor de Desarrollo de Aplicaciones Móviles. Un estudiante prepara lo que dirá en voz alta mientras corre el video de su app (máximo 7 minutos en total, 8 temas, así que unos 45-60 segundos por tema). Revisa su guion para este tema.
+${CONTEXTO_APP}
+
+TEMA: ${tema.titulo}
+LO QUE DEBERÍA CUBRIR (no hace falta todo):
+${tema.claves.map(c => "- " + c).join("\n")}
+
+GUION DEL ESTUDIANTE (~${segundos(texto)} segundos al hablar):
+${texto}
+
+Revisa: errores técnicos, puntos importantes que faltan, si suena a que entiende (no a algo memorizado) y si el largo calza con ~45-60 s. Español de Chile, tuteando, breve.
+Responde SOLO con JSON: {"puntaje": 0-10, "veredicto": "logrado" | "casi" | "no_logrado", "bien": ["..."], "corregir": ["errores técnicos o frases confusas"], "falto": ["..."], "tiempo": "comentario corto sobre el largo"}`;
+  return CAP.sample.json(prompt, { modelTier: "default" });
+}
+
+function renderPresentacion() {
+  const p = $("#p-presentacion");
+  const nombres = pareja.nombres;
+  const reparto = h("div", { class: "reparto" });
+  const pintarReparto = () => {
+    const tot = [0, 1].map(i => PRESENTACION.filter(t => (pres.temas[t.id] || {}).quien === i));
+    const seg = [0, 1].map(i => tot[i].reduce((a, t) => a + segundos((pres.temas[t.id] || {}).texto), 0));
+    const sinAsignar = PRESENTACION.filter(t => ![0, 1].includes((pres.temas[t.id] || {}).quien)).length;
+    const total = seg[0] + seg[1];
+    reparto.replaceChildren(
+      ...[0, 1].map(i => h("div", {}, h("span", { class: "small muted" }, nombres[i]), h("b", {}, `${tot[i].length} temas`), h("span", { class: "small muted" }, `~${seg[i]} s de guion`))),
+      h("div", {}, h("span", { class: "small muted" }, "Total estimado"), h("b", {}, `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`), h("span", { class: "small muted" }, total > 420 ? "se pasa de 7 min: recorta" : "de 7:00 máximo")),
+      h("div", {}, h("span", { class: "small muted" }, "Sin asignar"), h("b", {}, String(sinAsignar)), h("span", { class: "small muted" }, sinAsignar ? "asigna cada tema a alguien" : "todo repartido")));
+  };
+  pintarReparto();
+
+  const tarjetas = PRESENTACION.map(t => {
+    const st = pres.temas[t.id] || (pres.temas[t.id] = { quien: null, texto: "" });
+    const sel = h("select", { id: "pr-q-" + t.id },
+      h("option", { value: "" }, "Sin asignar"), h("option", { value: "0" }, nombres[0]), h("option", { value: "1" }, nombres[1]));
+    sel.value = st.quien === 0 || st.quien === 1 ? String(st.quien) : "";
+    sel.addEventListener("change", () => { st.quien = sel.value === "" ? null : Number(sel.value); guardarPres(); pintarReparto(); });
+    const ta = h("textarea", { id: "pr-t-" + t.id, rows: 5, placeholder: "Escribe lo que vas a decir mientras se ve esta parte del video…" });
+    ta.value = st.texto;
+    const largo = h("span", { class: "small muted" });
+    const pintarLargo = () => { largo.textContent = `${palabras(ta.value)} palabras · ~${segundos(ta.value)} s`; };
+    pintarLargo();
+    ta.addEventListener("input", () => { st.texto = ta.value; guardarPres(); pintarLargo(); pintarReparto(); });
+    const salida = h("div");
+    const btnRev = h("button", { class: "btn oro" }, CAP.sample ? "Revisar con Claude" : "Ver qué incluir");
+    btnRev.addEventListener("click", async () => {
+      if (!CAP.sample) { salida.replaceChildren(modelo(t)); return; }
+      if (palabras(ta.value) < 20) { salida.replaceChildren(h("p", { class: "aviso" }, "Escribe al menos un par de frases antes de revisar.")); return; }
+      btnRev.disabled = true;
+      salida.replaceChildren(pensando("Claude está revisando tu guion…"));
+      try {
+        const fb = await revisarPresentacion(t, ta.value.trim());
+        const pts = Math.max(0, Math.min(10, Math.round(Number(fb.puntaje) || 0)));
+        salida.replaceChildren(h("div", { class: "fb" },
+          h("div", { class: "fb-head" }, h("span", { class: "nota" }, pts + "/10"), sello(fb.veredicto), fb.tiempo ? h("span", { class: "small muted" }, fb.tiempo) : null),
+          lista("Bien", fb.bien), lista("Corregir", fb.corregir), lista("Te faltó", fb.falto)));
+      } catch (e) { salida.replaceChildren(h("p", { class: "aviso" }, textoError(e))); }
+      btnRev.disabled = false;
+    });
+    return h("article", { class: "ticket tema-pres" },
+      h("div", { class: "ticket-head" }, h("h3", {}, t.titulo),
+        h("div", { class: "campo" }, h("label", { for: "pr-q-" + t.id, class: "small muted" }, "Lo explica"), sel)),
+      h("label", { for: "pr-t-" + t.id, class: "small muted" }, "Guion"), ta, largo,
+      h("div", { class: "acciones" }, btnRev, CAP.sample ? h("button", { class: "btn sec", onclick: () => salida.replaceChildren(modelo(t)) }, "Ver qué incluir") : null), salida);
+  });
+
+  p.replaceChildren(h("div", { class: "wrap" },
+    h("div", {}, h("span", { class: "eyebrow" }, "Etapa 1"), h("h2", {}, "Ensayo de la presentación")),
+    h("p", { class: "muted" }, `Mientras corre el video (máx. 7 min, sin audio) tienen que explicar estos temas. La pauta pide que ambos participen de forma equilibrada. Los nombres se cambian en "En pareja". El guion se guarda solo en este navegador; el tiempo se estima a ${PALABRAS_POR_MIN} palabras por minuto. En la prueba no podrán leer: úsenlo para ensayar y después díganlo de memoria.`),
+    reparto, tarjetas));
+}
+
 let sim = null, relojId = null;
-const MIN_SIM = 15;
+const MIN_SIM = 20;
 
 function notaChilena(pct) {
   // Escala 1,0 a 7,0 con 60% de exigencia (4,0 = 60%)
@@ -1433,6 +2159,7 @@ function renderSimInicio() {
       h("ul", {},
         h("li", {}, "3 preguntas técnicas para responder con tus palabras (etapa 3)"),
         h("li", {}, "1 pregunta de '¿dónde está?' (etapa 4)"),
+        h("li", {}, "1 trozo de código para explicar (etapa 4)"),
         h("li", {}, "1 desafío de programación en vivo (etapa 4)")),
       h("p", { class: "muted small" }, `Tienes ${MIN_SIM} minutos. Al final ${CAP.sample ? "Claude corrige todo de una vez y te pone nota de 1,0 a 7,0" : "verás las respuestas modelo para autoevaluarte"}.`),
       h("div", { class: "acciones" }, h("button", { class: "btn oro", onclick: empezarSim }, "Empezar simulacro")))));
@@ -1442,11 +2169,13 @@ function empezarSim() {
   const abiertas = mezclar(ABIERTAS).slice(0, 3);
   const donde = mezclar(DONDE)[0];
   const reto = mezclar(RETOS.filter(r => r.nivel !== "Desafío"))[0];
+  const explicar = mezclar(EXPLICAR)[0];
   sim = {
     inicio: Date.now(), paso: 0, terminado: false,
     items: [
       ...abiertas.map(q => ({ tipo: "abierta", id: q.id, q, respuesta: "" })),
       { tipo: "donde", id: donde.id, q: donde, respuesta: null },
+      { tipo: "explicar", id: explicar.id, q: explicar, respuesta: "" },
       { tipo: "codigo", id: reto.id, q: reto, respuesta: reto.codigo }
     ]
   };
@@ -1473,6 +2202,12 @@ function renderSimPaso() {
     ta.value = it.respuesta;
     ta.addEventListener("input", () => { it.respuesta = ta.value; });
     cuerpo = [h("span", { class: "chip" }, it.q.tema), h("p", { class: "pregunta" }, it.q.p), h("label", { for: "sim-" + it.id, class: "small muted" }, "Tu respuesta"), ta];
+  } else if (it.tipo === "explicar") {
+    const ta = h("textarea", { id: "sim-" + it.id, rows: 6, placeholder: "Explica qué hace y por qué está hecho así…" });
+    ta.value = it.respuesta;
+    ta.addEventListener("input", () => { it.respuesta = ta.value; });
+    cuerpo = [h("span", { class: "chip" }, "Explicar código"), h("h3", {}, it.q.titulo), bloqueCodigo(it.q.archivo, it.q.codigo),
+      h("label", { for: "sim-" + it.id, class: "small muted" }, "¿Qué hace este código y por qué está hecho así?"), ta];
   } else if (it.tipo === "donde") {
     const correcta = it.q.o[it.q.c];
     it.opciones = it.opciones || mezclar(it.q.o);
@@ -1514,12 +2249,12 @@ async function terminarSim() {
     p.replaceChildren(h("div", { class: "wrap" }, h("h2", {}, "Autoevaluación"),
       h("p", { class: "muted" }, `Usaste ${usado} min. ¿Dónde está?: ${donde.correcta ? "correcto" : "incorrecto (era " + donde.q.o[donde.q.c] + ")"}.`),
       textos.map(it => h("article", { class: "ticket" }, h("h3", {}, it.q.p || it.q.titulo),
-        it.tipo === "abierta" ? modelo(it.q) : bloqueCodigo("Solución modelo", it.q.solucion))),
+        it.tipo === "codigo" ? bloqueCodigo("Solución modelo", it.q.solucion) : modelo(it.q))),
       h("div", { class: "acciones" }, h("button", { class: "btn oro", onclick: renderSimInicio }, "Otro simulacro"))));
     return;
   }
 
-  p.replaceChildren(h("div", { class: "wrap" }, h("h2", {}, "Corrigiendo…"), pensando("Claude está revisando tus 4 respuestas escritas. Puede tardar un minuto.")));
+  p.replaceChildren(h("div", { class: "wrap" }, h("h2", {}, "Corrigiendo…"), pensando(`Claude está revisando tus ${textos.length} respuestas escritas. Puede tardar un minuto.`)));
   try {
     const fb = await revisarSimulacro(textos);
     const porId = {};
@@ -1527,7 +2262,7 @@ async function terminarSim() {
     const filas = sim.items.map(it => {
       if (it.tipo === "donde") return { titulo: "¿Dónde está? · " + it.q.p, pts: ptsDonde, com: donde.correcta ? "Correcto." : "Era: " + it.q.o[it.q.c] };
       const x = porId[it.id] || {};
-      return { titulo: (it.tipo === "codigo" ? "En vivo · " + it.q.titulo : it.q.p), pts: Math.max(0, Math.min(10, Math.round(Number(x.puntaje) || 0))), com: x.comentario || "" };
+      return { titulo: (it.tipo === "codigo" ? "En vivo · " + it.q.titulo : it.tipo === "explicar" ? "Explicar · " + it.q.titulo : it.q.p), pts: Math.max(0, Math.min(10, Math.round(Number(x.puntaje) || 0))), com: x.comentario || "" };
     });
     const total = filas.reduce((a, f) => a + f.pts, 0);
     const nota = notaChilena(total / (filas.length * 10));
@@ -1581,12 +2316,15 @@ async function conectar() {
     }, () => { CAP.ranking = []; if (S.tab === "inicio") renderInicio(); });
   }
   // Los textos de las pestañas dependen de si hay revisión con Claude
-  for (const id of ["teoria", "vivo", "simulacro"]) if ($("#p-" + id).hidden) $("#p-" + id).replaceChildren();
+  for (const id of ["teoria", "explicar", "vivo", "simulacro"]) if ($("#p-" + id).hidden) $("#p-" + id).replaceChildren();
+  if (S.tab === "presentacion") renderPresentacion();
   if (S.tab === "inicio") renderInicio();
 }
 
 function arrancar() {
   cargarLocal();
+  cargarPareja();
+  cargarPres();
   pintarPuntos();
   irA("inicio");
   conectar();

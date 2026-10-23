@@ -8,9 +8,14 @@ Juego para practicar las etapas 3 (preguntas técnicas) y 4 (programación en vi
 
 Modos:
 
-1. **Preguntas técnicas:** 90 de alternativas y 16 para responder con tus palabras, por tema.
+1. **Preguntas técnicas:** 90 de alternativas y 16 para responder con tus palabras, por tema. Repaso inteligente: lo que fallas vuelve más seguido.
 2. **¿Dónde está?:** 22 preguntas sobre en qué archivo y función está cada funcionalidad.
-3. **Programar en vivo:** 15 desafíos sobre el código real (modificar e implementar), revisados por Claude.
-4. **Simulacro:** 3 preguntas + 1 "¿dónde está?" + 1 desafío, 15 minutos, nota de 1,0 a 7,0.
+3. **Explicar código:** 16 fragmentos reales de la app para explicar con tus palabras.
+4. **Programar en vivo:** 15 desafíos sobre el código real (modificar e implementar), revisados por Claude.
+5. **En pareja:** uno pregunta con la pauta y el otro responde en voz alta, sin IA.
+6. **Presentación:** reparto de los 8 temas de la etapa 1, guion y tiempo estimado.
+7. **Simulacro:** 3 preguntas + 1 "¿dónde está?" + 1 explicar + 1 desafío, 20 minutos, nota de 1,0 a 7,0.
+
+Cada pregunta tiene un botón para reportar errores; los reportes los lee el dueño de la página.
 
 Si cambia el código de la app, hay que revisar que las preguntas de "¿dónde está?" y los desafíos sigan calzando.
