@@ -1,0 +1,1595 @@
+<title>Coctelera Kotlin</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: una barra de bar — cabecera fija con la cuenta, y una sola columna de "comandas" (tarjetas-ticket) por modo de estudio */
+:root {
+  --bg: #F3EDE1;
+  --surface: #FFFDF8;
+  --ink: #1F1B16;
+  --muted: #6A604F;
+  --line: #E2D6BF;
+  --gold: #B8861E;
+  --gold-soft: #F3E3BD;
+  --gold-ink: #6E5110;
+  --ok: #2E7D32;
+  --ok-soft: #E3F1E3;
+  --bad: #B3261E;
+  --bad-soft: #F8E1DE;
+  --code-bg: #1F1B16;
+  --code-fg: #F1E7D2;
+  --code-kw: #E5B850;
+  --code-str: #9CCB8F;
+  --code-com: #8C8270;
+  --code-ann: #E29B6F;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15120E; --surface: #221D17; --ink: #F6EFE2; --muted: #B7AA93; --line: #3A3229;
+    --gold: #E5B850; --gold-soft: #3A2F18; --gold-ink: #F0CB72;
+    --ok: #7CC47F; --ok-soft: #1E2E1F; --bad: #F08A80; --bad-soft: #3A1F1C;
+    --code-bg: #0E0C09; --code-fg: #F1E7D2;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15120E; --surface: #221D17; --ink: #F6EFE2; --muted: #B7AA93; --line: #3A3229;
+  --gold: #E5B850; --gold-soft: #3A2F18; --gold-ink: #F0CB72;
+  --ok: #7CC47F; --ok-soft: #1E2E1F; --bad: #F08A80; --bad-soft: #3A1F1C;
+  --code-bg: #0E0C09; --code-fg: #F1E7D2;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.55 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 20px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(30px, 6vw, 46px); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 24px; font-weight: 700; }
+h3 { font-size: 18px; font-weight: 700; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.eyebrow { font: 600 12px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-ink); }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* Cabecera */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+}
+.top-in { max-width: 860px; margin: 0 auto; display: grid; gap: 10px; }
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand b { font: 800 22px/1 var(--font-display); letter-spacing: -0.01em; }
+.brand span { font: 600 11px/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cuenta { display: flex; align-items: center; gap: 10px; font-variant-numeric: tabular-nums; }
+.cuenta img { width: 28px; height: 28px; border-radius: 50%; }
+.pts { font: 700 15px/1 var(--font-mono); background: var(--gold-soft); color: var(--gold-ink); padding: 7px 10px; border-radius: 999px; }
+.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin-bottom: -1px; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  background: none; border: 0; border-bottom: 3px solid transparent;
+  padding: 8px 12px 10px; white-space: nowrap; color: var(--muted); font-weight: 700;
+}
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--gold); }
+
+/* Ticket / comanda */
+.ticket {
+  position: relative; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 6px 6px 14px 14px; padding: 22px 20px 20px; display: grid; gap: 14px; margin-top: 6px;
+}
+.ticket::before {
+  content: ""; position: absolute; left: 10px; right: 10px; top: -7px; height: 14px;
+  background: radial-gradient(circle, var(--bg) 4.5px, transparent 5px) 0 0 / 18px 14px repeat-x;
+}
+.ticket-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; border-bottom: 1px dashed var(--line); padding-bottom: 10px; }
+.chip { font: 600 12px/1 var(--font-mono); padding: 6px 9px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); }
+.chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.pregunta { font: 700 20px/1.35 var(--font-display); }
+.opts { display: grid; gap: 8px; }
+.opt {
+  display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; text-align: left;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+}
+.opt:hover:not(:disabled) { border-color: var(--gold); }
+.opt .letra { font: 600 14px/1.6 var(--font-mono); color: var(--gold-ink); }
+.opt.ok { background: var(--ok-soft); border-color: var(--ok); }
+.opt.bad { background: var(--bad-soft); border-color: var(--bad); }
+.opt:disabled { cursor: default; }
+.opt code, .inline code, p code, li code { font: 0.9em var(--font-mono); background: var(--gold-soft); color: var(--gold-ink); padding: 1px 5px; border-radius: 4px; }
+.explica { border-left: 4px solid var(--gold); padding: 10px 14px; background: var(--bg); border-radius: 0 10px 10px 0; display: grid; gap: 6px; }
+.explica.ok { border-left-color: var(--ok); }
+.explica.bad { border-left-color: var(--bad); }
+.acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn { border: 1px solid var(--ink); background: var(--ink); color: var(--bg); border-radius: 10px; padding: 10px 16px; font-weight: 700; }
+.btn.sec { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.oro { background: var(--gold); border-color: var(--gold); color: #1F1B16; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Código */
+.code-wrap { min-width: 0; }
+.code-label { font: 600 12px/1 var(--font-mono); color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; gap: 8px; }
+pre.code {
+  margin: 0; background: var(--code-bg); color: var(--code-fg); border-radius: 10px; padding: 14px 16px;
+  font: 13.5px/1.6 var(--font-mono); overflow-x: auto; tab-size: 4;
+}
+.kw { color: var(--code-kw); } .str { color: var(--code-str); } .com { color: var(--code-com); font-style: italic; } .ann { color: var(--code-ann); }
+textarea {
+  width: 100%; font: 15px/1.55 var(--font-body); color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; resize: vertical; min-height: 110px;
+}
+textarea.editor { font: 13.5px/1.6 var(--font-mono); background: var(--code-bg); color: var(--code-fg); min-height: 260px; tab-size: 4; white-space: pre; overflow-x: auto; }
+
+/* Feedback de Claude */
+.fb { display: grid; gap: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: var(--bg); }
+.fb-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.nota { font: 800 30px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.sello { font: 600 12px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 9px; border-radius: 6px; border: 2px solid currentColor; }
+.sello.logrado { color: var(--ok); } .sello.casi { color: var(--gold-ink); } .sello.no_logrado { color: var(--bad); }
+.fb ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.fb h4 { margin: 0; font: 700 13px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.pensando { display: flex; gap: 10px; align-items: center; color: var(--muted); }
+.pensando i { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); animation: lat 1s infinite ease-in-out; }
+@keyframes lat { 50% { transform: scale(0.5); opacity: 0.4; } }
+@media (prefers-reduced-motion: reduce) { .pensando i { animation: none; } }
+
+/* Inicio */
+.hero { display: grid; gap: 12px; padding-top: 8px; }
+.cuentaregresiva { display: flex; gap: 16px; flex-wrap: wrap; align-items: baseline; font-variant-numeric: tabular-nums; }
+.cuentaregresiva b { font: 800 34px/1 var(--font-display); }
+.modos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.modo { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.modo:hover { border-color: var(--gold); }
+.modo .eyebrow { color: var(--muted); }
+.modo h3 { font-size: 19px; }
+.dos-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: start; }
+.panel-box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.barra-tema { display: grid; grid-template-columns: minmax(0, 1fr) 46px; gap: 4px 10px; align-items: center; font-size: 14px; }
+.barra-tema .riel { grid-column: 1 / -1; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.barra-tema .riel i { display: block; height: 100%; background: var(--gold); }
+.barra-tema span:last-of-type { text-align: right; font: 600 13px var(--font-mono); font-variant-numeric: tabular-nums; }
+.rank { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rank li { display: grid; grid-template-columns: 26px 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 8px; border-radius: 8px; }
+.rank li.yo { background: var(--gold-soft); }
+.rank .pos { font: 600 13px var(--font-mono); color: var(--muted); text-align: right; }
+.rank img { width: 28px; height: 28px; border-radius: 50%; }
+.rank .quien { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank .p { font: 700 14px var(--font-mono); font-variant-numeric: tabular-nums; }
+.aviso { font-size: 14px; color: var(--muted); border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; }
+
+/* Programar en vivo */
+.retos { display: grid; gap: 8px; }
+.reto { text-align: left; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.reto:hover { border-color: var(--gold); }
+.reto .arch { font: 12px var(--font-mono); color: var(--muted); grid-column: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reto .estado { grid-row: 1 / span 2; grid-column: 2; align-self: center; }
+.nivel { font: 600 11px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; padding: 5px 7px; border-radius: 5px; background: var(--gold-soft); color: var(--gold-ink); }
+.check { color: var(--ok); font: 700 13px var(--font-mono); }
+
+/* Simulacro */
+.reloj { font: 700 22px/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.reloj.alerta { color: var(--bad); }
+.progreso { display: flex; gap: 4px; }
+.progreso i { flex: 1; height: 5px; border-radius: 3px; background: var(--line); }
+.progreso i.hecho { background: var(--gold); }
+.informe { display: grid; gap: 10px; }
+.informe .fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; border-bottom: 1px dashed var(--line); padding-bottom: 10px; }
+.informe .fila b { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+
+@media (max-width: 520px) {
+  .ticket { padding: 20px 14px 16px; }
+  .pregunta { font-size: 18px; }
+  .rank li { grid-template-columns: 22px 28px minmax(0, 1fr) auto; }
+}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="top-row">
+      <div class="brand"><b>Coctelera Kotlin</b><span>Prueba 2 · DSY1105</span></div>
+      <div class="cuenta"><img id="avatar" alt="" hidden><span id="nombreYo" class="small muted"></span><span class="pts" id="pts">0 pts</span></div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Modos de estudio">
+      <button class="tab" role="tab" id="t-inicio" data-tab="inicio" aria-selected="true">Inicio</button>
+      <button class="tab" role="tab" id="t-teoria" data-tab="teoria" aria-selected="false">Preguntas técnicas</button>
+      <button class="tab" role="tab" id="t-donde" data-tab="donde" aria-selected="false">¿Dónde está?</button>
+      <button class="tab" role="tab" id="t-vivo" data-tab="vivo" aria-selected="false">Programar en vivo</button>
+      <button class="tab" role="tab" id="t-simulacro" data-tab="simulacro" aria-selected="false">Simulacro</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:22px">
+  <section id="p-inicio"></section>
+  <section id="p-teoria" hidden></section>
+  <section id="p-donde" hidden></section>
+  <section id="p-vivo" hidden></section>
+  <section id="p-simulacro" hidden></section>
+</main>
+
+<script>
+/* =========================================================================
+   BANCO DE PREGUNTAS — basado en los videos del curso y en el código real
+   de la app Our Sour (rama main).
+   ========================================================================= */
+
+const TEMAS = ["Compose", "Estado y ViewModel", "Navegación", "Tema y Scaffold", "Room", "Gradle y KSP", "Arquitectura", "QR"];
+
+const MCQ = [
+  // ---------- Compose ----------
+  { id: "c1", tema: "Compose", p: "¿Qué unidad de medida se usa para el tamaño de las letras?", o: ["sp", "dp", "px", "em"], c: 0,
+    e: "sp = píxeles independientes de la escala. Se adapta al tamaño de letra que el usuario configuró en su teléfono, así la app no se deforma. Todo lo que no es texto va en dp." },
+  { id: "c2", tema: "Compose", p: "¿Qué significa dp?", o: ["Píxeles independientes de la densidad", "Píxeles independientes de la escala", "Puntos tipográficos", "Porcentaje de la pantalla"], c: 0,
+    e: "dp hace que la app se vea parecida en teléfonos de alta y baja resolución. Regla del curso: dp para todo, excepto letras (sp)." },
+  { id: "c3", tema: "Compose", p: "¿Cuál es la diferencia entre fillMaxWidth() y fillMaxSize()?", o: ["fillMaxWidth usa todo el ancho; fillMaxSize usa ancho y alto", "Son iguales", "fillMaxWidth usa todo el alto; fillMaxSize solo el ancho", "fillMaxSize solo funciona en Row"], c: 0,
+    e: "Por eso la Column con fillMaxSize ocupa toda la pantalla y las cajitas de texto con fillMaxWidth van de borde a borde." },
+  { id: "c4", tema: "Compose", p: "Un OutlinedTextField tiene value = \"\" y onValueChange = { }. ¿Qué pasa cuando el usuario escribe?", o: ["No aparece nada: el valor siempre es vacío y nadie lo cambia", "Escribe normal pero no guarda", "La app se cae", "Escribe solo la primera letra"], c: 0,
+    e: "El campo muestra lo que diga value. Si value nunca cambia, el texto nunca aparece. Por eso se conecta a una variable del ViewModel y onValueChange llama a una función que la cambia." },
+  { id: "c5", tema: "Compose", p: "En onValueChange = { loginViewModel.cambiarEmail(it) }, ¿qué representa it?", o: ["El texto nuevo que escribió el usuario", "El ViewModel", "El email que había antes", "El OutlinedTextField completo"], c: 0,
+    e: "it es el valor del contexto donde estás: en una cajita de texto, el texto nuevo. En un Checkbox, it sería true/false." },
+  { id: "c6", tema: "Compose", p: "Modifier.padding(bottom = 12.dp) en el título del login hace…", o: ["Deja 12 dp de espacio debajo del título", "Deja 12 dp arriba del título", "Agranda la letra 12 dp", "Mueve el título 12 dp a la derecha"], c: 0,
+    e: "padding acepta start (izquierda), top, end (derecha) y bottom (abajo). Sirve para separar el título de la primera cajita." },
+  { id: "c7", tema: "Compose", p: "¿Para qué sirve Spacer(modifier = Modifier.height(15.dp))?", o: ["Deja un espacio vacío de 15 dp entre dos componentes", "Dibuja una línea divisoria", "Limita la altura de la columna", "Oculta un componente"], c: 0,
+    e: "En su LoginScreen hay un Spacer de 15 dp entre el botón Ingresar y el texto 'Credenciales inválidas'." },
+  { id: "c8", tema: "Compose", p: "¿Qué propiedad del OutlinedTextField muestra la contraseña con puntitos?", o: ["visualTransformation = PasswordVisualTransformation()", "singleLine = true", "keyboardOptions = KeyboardType.Password", "isError = true"], c: 0,
+    e: "visualTransformation cambia cómo se ve el texto sin cambiar el valor guardado." },
+  { id: "c9", tema: "Compose", p: "En una Column, ¿qué centra a los hijos verticalmente?", o: ["verticalArrangement = Arrangement.Center", "horizontalAlignment = Alignment.CenterHorizontally", "Modifier.fillMaxSize()", "contentAlignment = Alignment.Center"], c: 0,
+    e: "En Column: verticalArrangement ordena en el eje vertical y horizontalAlignment centra a lo ancho. contentAlignment es de Box." },
+  { id: "c10", tema: "Compose", p: "¿Qué parámetro es obligatorio en un Button?", o: ["onClick", "modifier", "shape", "colors"], c: 0,
+    e: "Sin onClick el Button no compila. Aunque no haga nada (onClick = { }), el botón ya se dibuja." },
+  { id: "c11", tema: "Compose", p: "¿Cómo se combinan dos modificadores en un mismo componente?", o: ["Encadenándolos: Modifier.padding(top = 12.dp).fillMaxWidth()", "Con dos parámetros modifier", "Con una lista listOf(...)", "No se puede: es uno por componente"], c: 0,
+    e: "Los modificadores se encadenan con punto. Así está el botón Ingresar: padding(top = 12.dp).fillMaxWidth().height(50.dp)." },
+  { id: "c12", tema: "Compose", p: "Al importar Button aparecen varias opciones. ¿Cuál se elige?", o: ["La de Jetpack Compose (androidx.compose.material3)", "android.widget.Button", "La primera que aparezca", "java.awt.Button"], c: 0,
+    e: "Regla del curso: si hay varias, quédate con la que tiene el logo de Jetpack Compose." },
+  { id: "c13", tema: "Compose", p: "¿Qué indica la anotación @Composable sobre una función?", o: ["Que dibuja interfaz y Compose puede volver a ejecutarla cuando cambia el estado", "Que se ejecuta en otro hilo", "Que es una corrutina", "Que crea una tabla en la base de datos"], c: 0,
+    e: "Las pantallas (LoginScreen, HomeScreen…) son funciones @Composable. Cuando un estado que leen cambia, se recomponen." },
+  { id: "c14", tema: "Compose", p: "¿Qué hace singleLine = true en un OutlinedTextField?", o: ["Mantiene el campo en una sola línea (Enter no agrega saltos)", "Permite escribir solo un carácter", "Oculta el texto", "Dibuja una línea bajo el campo"], c: 0,
+    e: "Lo usan en correo y contraseña." },
+
+  // ---------- Estado y ViewModel ----------
+  { id: "v1", tema: "Estado y ViewModel", p: "¿Qué es el ViewModel en MVVM?", o: ["La capa intermedia entre la pantalla y los datos: el 'funcionamiento' de la pantalla", "La pantalla misma", "La base de datos", "El archivo de rutas"], c: 0,
+    e: "La screen solo muestra; el ViewModel guarda el estado y la lógica (validar, guardar, etc.). Por cada pantalla, idealmente un ViewModel." },
+  { id: "v2", tema: "Estado y ViewModel", p: "¿Por qué LoginViewModel hereda de AndroidViewModel (un ViewModel)?", o: ["Para adquirir las propiedades y funciones del ViewModel original (como viewModelScope y sobrevivir a la rotación)", "Porque Kotlin lo exige en toda clase", "Para poder dibujar botones", "Para crear rutas"], c: 0,
+    e: "Tu ViewModel hereda del componente que ya existe para tener su funcionamiento." },
+  { id: "v3", tema: "Estado y ViewModel", p: "¿Qué hace var email by mutableStateOf(\"\")?", o: ["Crea un estado que puede cambiar; cuando cambia, la pantalla que lo lee se redibuja", "Crea una constante vacía", "Guarda el email en Room", "Crea una ruta llamada email"], c: 0,
+    e: "Estado mutable que parte vacío (es texto). Si fuera Boolean partiría en false, como textoVisible." },
+  { id: "v4", tema: "Estado y ViewModel", p: "¿Por qué el ViewModel necesita importar getValue y setValue?", o: ["Por el 'by': para leer (get) y escribir (set) el estado", "Para conectarse a internet", "Para usar Room", "No los necesita"], c: 0,
+    e: "Como el get y set de Java. El delegado 'by mutableStateOf' necesita ambas importaciones." },
+  { id: "v5", tema: "Estado y ViewModel", p: "En su LoginViewModel, email tiene 'private set'. ¿Qué significa?", o: ["Solo el ViewModel puede cambiarlo; la pantalla lo lee y lo cambia llamando a cambiarEmail()", "Nadie puede leerlo", "Solo la pantalla puede cambiarlo", "Se guarda en privado en Room"], c: 0,
+    e: "Así toda modificación pasa por una función del ViewModel. textoVisible NO tiene private set porque el botón lo cambia directo, como en el video." },
+  { id: "v6", tema: "Estado y ViewModel", p: "¿Por qué la pantalla declara loginViewModel: LoginViewModel = viewModel()?", o: ["Es un parámetro con valor por defecto: nadie tiene que pasárselo y la pantalla trae su propio ViewModel", "Para que MainActivity lo cree", "Para poder navegar", "Porque viewModel() borra los datos"], c: 0,
+    e: "Si sacas el '= viewModel()', AppNavigation te obligaría a pasarlo. viewModel() viene de lifecycle-viewmodel-compose." },
+  { id: "v7", tema: "Estado y ViewModel", p: "¿Por qué sus ViewModels usan AndroidViewModel(application) y no ViewModel()?", o: ["Necesitan el Application (contexto) para abrir la base de datos Room", "Porque es más rápido", "Para poder navegar", "AndroidViewModel no existe"], c: 0,
+    e: "AppDatabase.obtener(application) necesita un contexto." },
+  { id: "v8", tema: "Estado y ViewModel", p: "¿Para qué sirve viewModelScope.launch { ... }?", o: ["Lanza una corrutina ligada al ViewModel, para llamar funciones suspend (como las del DAO)", "Navega a otra pantalla", "Crea un estado", "Dibuja la pantalla"], c: 0,
+    e: "Las consultas a Room son suspend y deben correr dentro de una corrutina. Si el ViewModel se destruye, la corrutina se cancela." },
+  { id: "v9", tema: "Estado y ViewModel", p: "¿Por qué textoVisible parte en false?", o: ["Para que el mensaje 'Credenciales inválidas' no se muestre al abrir la pantalla", "Porque Boolean no puede partir en true", "Para que el botón esté deshabilitado", "Porque así lo exige Room"], c: 0,
+    e: "La pantalla hace if (loginViewModel.textoVisible) { Text(...) }. Solo se activa cuando el login falla." },
+  { id: "v10", tema: "Estado y ViewModel", p: "¿Por qué el botón Ingresar pone textoVisible = false antes de validar?", o: ["Para que cada intento parta con el mensaje oculto y no quede pegado tras un login correcto", "Para cerrar la sesión", "Porque si no, no compila", "Para limpiar el correo"], c: 0,
+    e: "Es el problema que muestra el profe: sin esa línea, el mensaje seguía visible aunque las credenciales fueran correctas." },
+  { id: "v11", tema: "Estado y ViewModel", p: "¿Por qué login() usa var validador = false ... return validador?", o: ["Buena práctica: un solo return por función", "Porque Kotlin no permite dos return", "Para que sea suspend", "Para guardar en Room"], c: 0,
+    e: "Es sugerencia, no error: tener dos return no está mal, pero la buena práctica indica uno solo." },
+  { id: "v12", tema: "Estado y ViewModel", p: "¿Por qué CheckoutViewModel se crea dentro de AppNavigation y no en cada pantalla?", o: ["Para que Despacho, Resumen y Pago compartan la misma instancia y no se pierdan los datos", "Porque AppNavigation es más rápido", "Porque las pantallas no pueden tener ViewModel", "Para poder usar Room"], c: 0,
+    e: "Si cada pantalla creara el suyo, al pasar de Despacho a Resumen se perdería la dirección ingresada." },
+  { id: "v13", tema: "Estado y ViewModel", p: "Un DAO devuelve Flow<Int>. ¿Cómo lo usa la pantalla?", o: ["val unidades by carritoViewModel.unidades.collectAsState(initial = 0)", "Lo imprime con println", "Lo llama con suspend", "No se puede usar en la pantalla"], c: 0,
+    e: "collectAsState transforma el Flow en un estado que Compose entiende. Así funciona el contador del carrito (CarritoBoton)." },
+  { id: "v14", tema: "Estado y ViewModel", p: "¿Qué dependencia permite usar viewModel() dentro de un Composable?", o: ["lifecycle-viewmodel-compose", "room-runtime", "navigation-compose", "retrofit"], c: 0,
+    e: "Es la que el profe agrega en el video de ViewModel. En su proyecto: libs.androidx.lifecycle.viewmodel.compose." },
+
+  // ---------- Navegación ----------
+  { id: "n1", tema: "Navegación", p: "¿Por qué Routes es un object?", o: ["Se usa directo, sin instanciarlo, y deja todas las rutas en un solo archivo", "Porque guarda datos en Room", "Porque es un Composable", "Para que sea privado"], c: 0,
+    e: "Routes.HOME funciona sin crear un Routes(). Tener todas las rutas juntas da claridad de a qué pantallas se puede navegar." },
+  { id: "n2", tema: "Navegación", p: "¿Qué hace rememberNavController()?", o: ["Crea el controlador que recuerda la navegación: de dónde vengo, para volver atrás", "Guarda la sesión del usuario", "Crea las rutas", "Dibuja la barra superior"], c: 0,
+    e: "Gracias a que recuerda el historial, el botón atrás (o popBackStack) vuelve a la pantalla anterior." },
+  { id: "n3", tema: "Navegación", p: "¿Qué es el NavHost?", o: ["El lugar donde se alojan las rutas y se unen con sus pantallas", "El archivo de rutas", "Un tipo de ViewModel", "La pantalla de inicio"], c: 0,
+    e: "Routes solo define nombres; el NavHost hace la unión ruta → pantalla con composable(...). Pide navController y startDestination." },
+  { id: "n4", tema: "Navegación", p: "¿Qué indica startDestination en el NavHost?", o: ["La pantalla con la que parte la app", "La última pantalla visitada", "La pantalla de error", "La ruta del botón atrás"], c: 0,
+    e: "En su app no es fija: SesionViewModel decide rutaInicial (Home, panel admin o Bienvenida) según si existe la marquita de sesión." },
+  { id: "n5", tema: "Navegación", p: "Dentro del NavHost, ¿qué hace composable(Routes.HOME) { HomeScreen(...) }?", o: ["Registra que la ruta 'home' abre HomeScreen", "Crea un nuevo Composable vacío", "Navega inmediatamente al Home", "Define el tema"], c: 0,
+    e: "Ojo: es composable con minúscula, no la anotación @Composable." },
+  { id: "n6", tema: "Navegación", p: "¿Cómo se navega a otra pantalla?", o: ["navController.navigate(Routes.HOME)", "Routes.HOME()", "HomeScreen.open()", "startDestination = Routes.HOME"], c: 0,
+    e: "navigate recibe la ruta destino." },
+  { id: "n7", tema: "Navegación", p: "En entrarA() usan popUpTo(Routes.BIENVENIDA) { inclusive = true }. ¿Para qué?", o: ["Borra Bienvenida y Login del historial: después de entrar, el botón atrás no vuelve al login", "Vuelve a la bienvenida", "Cierra la app", "Recarga la pantalla"], c: 0,
+    e: "inclusive = true borra también la propia Bienvenida. En el video del profe sí se podía volver al login con atrás." },
+  { id: "n8", tema: "Navegación", p: "¿Qué hace navController.popBackStack()?", o: ["Vuelve a la pantalla anterior", "Borra todas las rutas", "Navega al Home", "Cierra sesión"], c: 0,
+    e: "Lo usan en los onVolver de casi todas las pantallas." },
+  { id: "n9", tema: "Navegación", p: "Su LoginScreen recibe onLoginAdmin: () -> Unit en vez del navController. ¿Ventaja?", o: ["Cada paquete tiene su responsabilidad: la pantalla solo avisa y la navegación vive en el paquete navigation", "Es más rápido", "El navController no se puede pasar como parámetro", "Así no necesita ViewModel"], c: 0,
+    e: "El profe muestra la alternativa de pasar el navController, pero dice preferir pasar la función, como hicieron en clases." },
+  { id: "n10", tema: "Navegación", p: "Después de crear AppNavigation, ¿qué llama MainActivity dentro de setContent?", o: ["AppNavigation() (envuelto en el tema)", "LoginScreen()", "HomeScreen()", "Routes.LOGIN"], c: 0,
+    e: "Desde ahí toda la app está consolidada en AppNavigation: OursourTheme { Surface { AppNavigation() } }." },
+  { id: "n11", tema: "Navegación", p: "La ruta LOGIN es \"login?admin={admin}\". ¿Qué es {admin}?", o: ["Un argumento que viaja con la ruta (aquí, si es el login de administrador)", "Un comentario", "El nombre de la pantalla", "Un error de sintaxis"], c: 0,
+    e: "Se arma con Routes.login(admin = true) y se lee con backStackEntry.arguments?.getBoolean(\"admin\")." },
+
+  // ---------- Tema y Scaffold ----------
+  { id: "t1", tema: "Tema y Scaffold", p: "¿Qué es un tema en una app Compose?", o: ["Un estilo visual que hace que todas las pantallas se vean consistentes (colores, tipografía)", "Una pantalla de configuración", "Una dependencia de Gradle", "El fondo de una sola pantalla"], c: 0,
+    e: "Su tema es OursourTheme en ui/theme/Theme.kt, con LightColorScheme y DarkColorScheme." },
+  { id: "t2", tema: "Tema y Scaffold", p: "En el esquema de colores, ¿qué es onPrimary?", o: ["El color del contenido (texto, íconos) que va encima de un fondo primary", "Un color más claro que primary", "El color de los errores", "El color del fondo de la app"], c: 0,
+    e: "Si el botón es primary, su letra es onPrimary, para que haya buen contraste." },
+  { id: "t3", tema: "Tema y Scaffold", p: "¿Para qué se usa el color surface?", o: ["Para componentes menos llamativos, como tarjetas", "Para botones importantes", "Solo para errores", "Para el texto"], c: 0,
+    e: "Sus tarjetas usan surfaceContainer, una variante de surface de Material 3." },
+  { id: "t4", tema: "Tema y Scaffold", p: "¿Por qué es mejor definir los colores en el tema que en cada botón?", o: ["Si la marca cambia sus colores, se cambia en un solo lugar y toda la app se adapta", "Porque los botones no aceptan colores", "Porque el tema es más rápido de dibujar", "No hay diferencia"], c: 0,
+    e: "Poner colors en cada botón obliga a modificar todas las pantallas si cambia la marca." },
+  { id: "t5", tema: "Tema y Scaffold", p: "En ButtonDefaults.buttonColors(containerColor = X, contentColor = Y)…", o: ["X es el fondo del botón e Y el color del texto", "X es el texto e Y el fondo", "X es el borde e Y la sombra", "Ambos son el fondo"], c: 0,
+    e: "Un color definido en el botón pisa el color del tema." },
+  { id: "t6", tema: "Tema y Scaffold", p: "¿Por qué el mensaje de error usa MaterialTheme.colorScheme.error y no Color.Red?", o: ["Toma el color de error del tema, consistente con toda la app y con el modo oscuro", "Color.Red no existe", "Porque es más rojo", "Porque Room lo exige"], c: 0,
+    e: "Color.Red solo da los colores básicos; el tema define un rojo propio para errores." },
+  { id: "t7", tema: "Tema y Scaffold", p: "¿Qué es un Scaffold?", o: ["Una estructura de pantalla con espacios para topBar, floatingActionButton y el contenido", "Una base de datos", "Un tipo de botón", "Un archivo de rutas"], c: 0,
+    e: "Casi todas sus pantallas usan Scaffold con OurSourTopBar como topBar." },
+  { id: "t8", tema: "Tema y Scaffold", p: "¿Por qué hay que usar el padding que entrega el Scaffold { padding -> ... }?", o: ["Es el margen para que el contenido no quede debajo de la barra superior; es obligatorio usarlo", "Es opcional y decorativo", "Sirve para el modo oscuro", "Para que el botón flotante sea redondo"], c: 0,
+    e: "Si quieres otro margen (ej. 16 dp), agregas otro padding encima: .padding(padding).padding(16.dp). El profe dijo que puede ser pregunta de la prueba 2." },
+  { id: "t9", tema: "Tema y Scaffold", p: "¿Qué parámetro del Scaffold agrega el botón flotante?", o: ["floatingActionButton", "topBar", "bottomBar", "snackbarHost"], c: 0,
+    e: "En su Home, el FloatingActionButton abre el escáner QR, con RoundedCornerShape(16.dp)." },
+  { id: "t10", tema: "Tema y Scaffold", p: "¿Qué tiene de especial CenterAlignedTopAppBar?", o: ["Lo que pongas como título aparece centrado", "Se queda abajo", "Es invisible", "Solo funciona en modo oscuro"], c: 0,
+    e: "Su app usa TopAppBar (título a la izquierda) dentro de OurSourTopBar; la idea es la misma." },
+  { id: "t11", tema: "Tema y Scaffold", p: "¿Qué hace shape = RoundedCornerShape(5.dp) en un botón?", o: ["Redondea sus esquinas 5 dp", "Le pone un borde de 5 dp", "Lo agranda 5 dp", "Le agrega sombra"], c: 0,
+    e: "Así está su botón Ingresar, para que se parezca a las cajitas de texto." },
+  { id: "t12", tema: "Tema y Scaffold", p: "Después de cambiar Color.kt, ¿qué recomienda el profe?", o: ["Reiniciar la aplicación para que el color nuevo se reconozca", "Borrar el proyecto", "Nada, se ve al instante siempre", "Cambiar la versión de Kotlin"], c: 0,
+    e: "Los cambios visuales simples se ven al tiro; los de archivos de configuración o dependencias necesitan reiniciar." },
+
+  // ---------- Room ----------
+  { id: "r1", tema: "Room", p: "¿Qué es Room?", o: ["La librería estándar de Android para base de datos local (SQLite)", "Un servidor web", "Una librería de navegación", "Un diseño de Material 3"], c: 0,
+    e: "Con Room la información vive dentro del teléfono: si se pierde el teléfono, se pierden los datos." },
+  { id: "r2", tema: "Room", p: "¿Qué hace la anotación @Entity sobre una data class?", o: ["Le indica que se tiene que convertir en una tabla de la base de datos", "La convierte en pantalla", "La hace privada", "La convierte en ViewModel"], c: 0,
+    e: "El profe dijo que esta te la pregunta seguro. Su UsuarioEntity es @Entity(tableName = \"usuarios\")." },
+  { id: "r3", tema: "Room", p: "¿Para qué sirve tableName = \"usuarios\" en @Entity?", o: ["Pone el nombre de la tabla, que se usa en las consultas SQL", "Es el nombre de la base de datos", "Es el nombre del DAO", "Es obligatorio y debe ser igual a la clase"], c: 0,
+    e: "Sin tableName la tabla se llamaría como la clase. Lo importante es recordar el nombre para los SELECT." },
+  { id: "r4", tema: "Room", p: "@PrimaryKey(autoGenerate = true) val id: Int = 0 significa…", o: ["id es la llave primaria y Room la genera sola (1, 2, 3…)", "id siempre vale 0", "id se puede repetir", "id se guarda en internet"], c: 0,
+    e: "Lo usan en PedidoEntity y EventoBusquedaEntity. En UsuarioEntity la llave primaria es el email." },
+  { id: "r5", tema: "Room", p: "¿Qué significa DAO?", o: ["Data Access Object: la capa que habla directo con la base de datos", "Data Android Object", "Database Application Order", "Direct API Output"], c: 0,
+    e: "El DAO puede guardar, extraer, modificar y eliminar información. Lo ideal es un DAO por cada tabla." },
+  { id: "r6", tema: "Room", p: "¿Por qué las funciones del DAO no tienen cuerpo?", o: ["El DAO es una interfaz; KSP genera el código a partir de las anotaciones", "Porque están incompletas", "Porque Room las descarga de internet", "Porque son privadas"], c: 0,
+    e: "En una interfaz defines comportamiento sin decir cómo se hace. @Insert se transforma en el INSERT INTO correspondiente." },
+  { id: "r7", tema: "Room", p: "¿Por qué @Insert suspend fun insertar(...) lleva suspend?", o: ["Porque es una operación que se puede demorar (abrir la BD, insertar, responder) y corre en una corrutina", "Para que sea privada", "Porque devuelve un Flow", "Para que no se pueda llamar"], c: 0,
+    e: "Toda función que se puede demorar la manejamos con suspend, bajo el concepto de corrutina." },
+  { id: "r8", tema: "Room", p: "¿Por qué fun listar(): Flow<List<UsuarioEntity>> NO lleva suspend?", o: ["Porque Flow ya maneja la corrutina: es un 'tubito' por donde van saliendo los datos y se actualiza solo", "Porque está mal escrito", "Porque las listas no pueden ser suspend", "Porque nunca se usa"], c: 0,
+    e: "Un Flow entrega datos ahora y cada vez que la tabla cambia." },
+  { id: "r9", tema: "Room", p: "¿Por qué login() del DAO devuelve UsuarioEntity? (con signo de interrogación)?", o: ["Puede no venir: si las credenciales no coinciden, devuelve null", "Porque es una lista", "Porque es opcional escribirla", "Para que sea suspend"], c: 0,
+    e: "El ? marca que el resultado puede ser nulo. Por eso el ViewModel pregunta if (usuario != null)." },
+  { id: "r10", tema: "Room", p: "En @Query(\"... WHERE email = :email\"), ¿qué es :email?", o: ["Se reemplaza por el parámetro de la función que se llama igual", "Una columna nueva", "Un comentario SQL", "El nombre de la tabla"], c: 0,
+    e: "El nombre del parámetro en la query y en la función debe ser consistente." },
+  { id: "r11", tema: "Room", p: "¿Para qué sirven las triple comillas \"\"\" ... \"\"\" en una @Query?", o: ["Escribir una consulta en varias líneas sin concatenar textos", "Comentar la consulta", "Hacerla más rápida", "Son obligatorias en Room"], c: 0,
+    e: "Así está escrita su consulta login() en UsuarioDao." },
+  { id: "r12", tema: "Room", p: "¿Qué hace @Insert(onConflict = OnConflictStrategy.REPLACE)?", o: ["Si ya existe un registro con la misma llave primaria, lo reemplaza", "Nunca inserta", "Borra la tabla", "Inserta duplicados"], c: 0,
+    e: "Lo usan en CarritoDao.guardar (actualiza la cantidad) y en SesionDao.guardar." },
+  { id: "r13", tema: "Room", p: "Agregaron la tabla sesion. ¿Qué tuvieron que cambiar en AppDatabase?", o: ["Agregar SesionEntity a entities, subir version a 2 y agregar una migración", "Nada", "Borrar la base de datos", "Cambiar el nombre del archivo .db"], c: 0,
+    e: "Si cambia la estructura y no subes la versión con su migración, la app se cae en teléfonos que ya tenían la base. MIGRACION_1_2 crea la tabla sin borrar datos." },
+  { id: "r14", tema: "Room", p: "¿Por qué AppDatabase.obtener() usa @Volatile y synchronized?", o: ["Para que exista una sola instancia de la base de datos en toda la app (Singleton)", "Para que sea más lenta", "Para conectarse a internet", "Para cifrar los datos"], c: 0,
+    e: "Si ya existe la instancia la devuelve; si no, la crea una sola vez." },
+  { id: "r15", tema: "Room", p: "¿Cuál es buen uso de la base de datos LOCAL según el curso?", o: ["Mantener la sesión iniciada, el carrito y favoritos de ese usuario", "Guardar los pedidos de todos los clientes", "Compartir datos entre teléfonos", "Reemplazar el backend"], c: 0,
+    e: "La local es información solo para mí. La API REST trabaja con una base compartida en el servidor." },
+  { id: "r16", tema: "Room", p: "¿Qué anotación se usa para un SELECT en un DAO?", o: ["@Query", "@Select", "@Get", "@Find"], c: 0,
+    e: "No existe @Select. Con @Query escribes cualquier SQL." },
+  { id: "r17", tema: "Room", p: "En su app, ¿cómo sabe al abrirse si el usuario ya había iniciado sesión?", o: ["Busca una fila en la tabla sesion (la 'marquita'); si existe, parte en el Home", "Le pregunta al backend", "Lee un archivo de texto", "Siempre pide login"], c: 0,
+    e: "SesionViewModel llama sesionDao.obtener() en su init. Cerrar sesión borra esa fila." },
+
+  // ---------- Gradle y KSP ----------
+  { id: "g1", tema: "Gradle y KSP", p: "¿Para qué sirve el archivo libs.versions.toml?", o: ["Centraliza las versiones de dependencias y plugins del proyecto", "Guarda las rutas", "Es la base de datos", "Define los colores"], c: 0,
+    e: "Tiene [versions], [libraries] y [plugins]. Está en la carpeta gradle." },
+  { id: "g2", tema: "Gradle y KSP", p: "En el .toml, ¿qué hace version.ref = \"room\"?", o: ["Usa la versión guardada en la variable room de [versions]", "Descarga la última versión", "Borra la versión", "Es un comentario"], c: 0,
+    e: "Así no repites el número en cada librería: room-runtime y room-compiler usan la misma variable." },
+  { id: "g3", tema: "Gradle y KSP", p: "¿Qué significa KSP?", o: ["Kotlin Symbol Processing", "Kotlin Script Plugin", "Kotlin Standard Package", "Kotlin Server Protocol"], c: 0,
+    e: "Ojo: en el video se dice 'Kotlin Script', pero el nombre real es Kotlin Symbol Processing. Lee las anotaciones y genera el código Kotlin." },
+  { id: "g4", tema: "Gradle y KSP", p: "¿Por qué room-compiler se agrega con ksp(...) y no con implementation(...)?", o: ["Solo se usa al compilar: KSP lo usa para generar el código del DAO y la base", "Porque es más liviano", "Porque implementation está prohibido", "Para que funcione sin internet"], c: 0,
+    e: "room-runtime (implementation) se usa mientras la app corre; room-compiler solo al compilar." },
+  { id: "g5", tema: "Gradle y KSP", p: "Modificaste build.gradle.kts o libs.versions.toml. ¿Qué haces?", o: ["Sincronizar (Sync Now) y esperar que termine", "Nada", "Reinstalar Android Studio", "Borrar la carpeta build"], c: 0,
+    e: "Si alguna versión no es compatible, en ese momento aparece el error." },
+  { id: "g6", tema: "Gradle y KSP", p: "¿Dónde se activa el plugin KSP para el módulo de la app?", o: ["En app/build.gradle.kts: alias(libs.plugins.ksp)", "En MainActivity", "En AndroidManifest.xml", "En Theme.kt"], c: 0,
+    e: "En el build.gradle.kts de la raíz se declara con apply false; en el de app se activa." },
+  { id: "g7", tema: "Gradle y KSP", p: "¿Para qué sirve room-ktx?", o: ["Permite usar suspend y Flow en los DAO", "Dibuja tablas en pantalla", "Conecta con el backend", "Lee códigos QR"], c: 0,
+    e: "Es una de las librerías 'extra' de Room." },
+  { id: "g8", tema: "Gradle y KSP", p: "¿Qué dependencia trae NavHost y rememberNavController?", o: ["navigation-compose", "room-runtime", "zxing-android-embedded", "material-icons-extended"], c: 0,
+    e: "En su .toml: androidx-navigation-compose." },
+  { id: "g9", tema: "Gradle y KSP", p: "Agregaste una dependencia y el emulador ya estaba corriendo. ¿Qué recomienda el profe?", o: ["Reiniciar la app, si no, no reconoce la dependencia nueva", "Nada", "Cambiar de emulador", "Desinstalar Gradle"], c: 0,
+    e: "Los cambios en Gradle no se aplican en vivo como un cambio visual." },
+
+  // ---------- Arquitectura ----------
+  { id: "a1", tema: "Arquitectura", p: "¿Cuál es el orden de capas con base de datos según el curso?", o: ["Model → DAO → Database → Repository → ViewModel → View", "View → Model → DAO", "ViewModel → View → Database", "DAO → View → Model"], c: 0,
+    e: "Los datos ya no van directo del modelo al ViewModel: pasan por DAO, base y repositorio." },
+  { id: "a2", tema: "Arquitectura", p: "¿Qué hay en el paquete view y qué en viewmodel?", o: ["view: las pantallas (interfaz); viewmodel: la lógica de cada pantalla", "view: la base de datos; viewmodel: las rutas", "Son lo mismo", "view: los colores; viewmodel: las dependencias"], c: 0,
+    e: "Además: navigation (rutas), model (clases de datos), data/local (Room), data/repository, ui/theme, util." },
+  { id: "a3", tema: "Arquitectura", p: "¿Qué hace un Repository?", o: ["Intermedia entre el ViewModel y las fuentes de datos (DAO, API)", "Dibuja la pantalla", "Define las rutas", "Compila el código"], c: 0,
+    e: "Su CatalogoRepository tiene el catálogo en memoria por ahora; en la Unidad 3 lo traerá del backend." },
+  { id: "a4", tema: "Arquitectura", p: "¿Qué significa MVVM?", o: ["Model – View – ViewModel", "Main – View – Value – Model", "Model – Value – View – Method", "Mobile – View – Virtual – Machine"], c: 0,
+    e: "Es la arquitectura que pide el anexo del proyecto." },
+  { id: "a5", tema: "Arquitectura", p: "¿Qué es SesionUsuario en su app?", o: ["Un object que guarda en memoria quién está usando la app (nombre, email, rol)", "Una tabla de Room", "Una pantalla", "Una ruta"], c: 0,
+    e: "Está en data/repository. La sesión que sobrevive al cerrar la app está en la tabla sesion." },
+  { id: "a6", tema: "Arquitectura", p: "En esta etapa, ¿la app móvil debe conectarse al backend?", o: ["No: la pauta lo prohíbe en la Prueba 2; ApiClient y ApiService quedan listos para la Unidad 3", "Sí, obligatorio", "Solo para el login", "Solo en el video"], c: 0,
+    e: "Por eso el catálogo vive en CatalogoRepository y los usuarios en Room." },
+
+  // ---------- QR ----------
+  { id: "q1", tema: "QR", p: "¿Qué librería usa su app para leer códigos QR?", o: ["ZXing (zxing-android-embedded)", "Room", "Retrofit", "Coil"], c: 0,
+    e: "La misma librería genera QR con BarcodeEncoder (QrImagen en Componentes.kt)." },
+  { id: "q2", tema: "QR", p: "¿Cómo se abre la cámara para escanear en EscanerQrScreen?", o: ["rememberLauncherForActivityResult(ScanContract()) y luego lanzadorEscaner.launch(opciones)", "navController.navigate(\"camara\")", "Con un @Query", "Con viewModelScope.launch"], c: 0,
+    e: "ScanContract abre la CaptureActivity de ZXing y devuelve el texto leído en resultado.contents." },
+  { id: "q3", tema: "QR", p: "¿Dónde se declara el permiso de cámara?", o: ["En AndroidManifest.xml: android.permission.CAMERA", "En build.gradle.kts", "En Routes.kt", "En Theme.kt"], c: 0,
+    e: "La librería además pide el permiso al usuario la primera vez." },
+  { id: "q4", tema: "QR", p: "¿Qué formato tienen los QR de Our Sour?", o: ["OURSOUR:TIPO:ID (ej. OURSOUR:PRODUCTO:1)", "Una URL de internet", "Solo un número", "JSON"], c: 0,
+    e: "TIPO puede ser PRODUCTO, RECETA o INGREDIENTE." },
+  { id: "q5", tema: "QR", p: "En el resultado del escáner, ¿qué significa resultado.contents == null?", o: ["El usuario canceló el escaneo", "El QR estaba vacío pero válido", "Falta el permiso de Internet", "Es un producto sin stock"], c: 0,
+    e: "Por eso la pantalla muestra 'Escaneo cancelado'." },
+  { id: "q6", tema: "QR", p: "En procesarCodigo, ¿qué decide qué hacer con el QR?", o: ["Un when sobre partes[1] (PRODUCTO, RECETA, INGREDIENTE)", "Un for", "Un @Query", "El NavHost"], c: 0,
+    e: "Primero hace split(\":\") y revisa que sean 3 partes, que empiece con OURSOUR y que el id sea número." },
+  { id: "q7", tema: "QR", p: "Si se escanea OURSOUR:INGREDIENTE:11, ¿qué pasa?", o: ["Se guarda el ingrediente en 'Mis ingredientes frecuentes' (Room)", "Se abre el carrito", "Se cierra la sesión", "No pasa nada"], c: 0,
+    e: "guardarIngrediente usa frecuenteDao.insertar dentro de viewModelScope.launch." }
+];
+
+const ABIERTAS = [
+  { id: "o1", tema: "Estado y ViewModel", p: "Explica qué es un ViewModel y por qué lo usan en su app.",
+    claves: ["Capa intermedia entre la pantalla y los datos", "Tiene el estado (mutableStateOf) y la lógica de la pantalla", "La pantalla solo muestra; el ViewModel 'hace funcionar' la pantalla", "Hereda de ViewModel/AndroidViewModel para tener sus funciones (viewModelScope, sobrevive a la rotación)", "Ejemplo concreto: LoginViewModel con email, password, textoVisible y login()"] },
+  { id: "o2", tema: "Compose", p: "¿Cuál es la diferencia entre sp y dp, y cuándo usas cada una?",
+    claves: ["sp: píxeles independientes de la escala, para texto", "Se adapta al tamaño de letra configurado en el teléfono", "dp: píxeles independientes de la densidad, para todo lo demás (tamaños, márgenes)", "Hace que la app se vea parecida en distintas resoluciones"] },
+  { id: "o3", tema: "Estado y ViewModel", p: "Describe paso a paso qué pasa cuando el usuario escribe una letra en el campo de correo del login.",
+    claves: ["onValueChange recibe el texto nuevo (it)", "Llama a loginViewModel.cambiarEmail(it)", "La función cambia la variable email (mutableStateOf)", "Como el estado cambió, Compose redibuja (recompone) la pantalla", "El campo muestra el nuevo value = loginViewModel.email"] },
+  { id: "o4", tema: "Gradle y KSP", p: "¿Qué es KSP y para qué lo necesita Room?",
+    claves: ["Kotlin Symbol Processing (plugin)", "Lee las anotaciones (@Entity, @Dao, @Insert, @Query, @Database)", "Genera automáticamente el código Kotlin que las hace funcionar (ej. el INSERT INTO)", "Se agrega como plugin y room-compiler va con ksp(...)"] },
+  { id: "o5", tema: "Room", p: "En un DAO, ¿cuándo usas suspend y cuándo Flow? Da un ejemplo de su app.",
+    claves: ["suspend: operaciones que se pueden demorar y devuelven una vez (insertar, login, buscar uno)", "Flow: devuelve datos que se van actualizando, como una lista (no lleva suspend)", "Flow ya maneja la corrutina", "Ejemplos: suspend fun login(...) / fun obtenerTodos(): Flow<List<CarritoItemEntity>>", "En la pantalla, el Flow se transforma con collectAsState"] },
+  { id: "o6", tema: "Tema y Scaffold", p: "¿Qué es el Scaffold y por qué hay que usar el padding que entrega?",
+    claves: ["Estructura de pantalla con espacios: topBar, floatingActionButton, contenido", "El lambda entrega un padding (innerPadding)", "Ese padding evita que el contenido quede debajo de la barra superior", "Es obligatorio usarlo; si quieres otro margen, agregas otro padding encima"] },
+  { id: "o7", tema: "Navegación", p: "Explica cómo funciona la navegación en su app.",
+    claves: ["Routes (object) define los nombres de las rutas", "AppNavigation crea el navController con rememberNavController", "NavHost con startDestination y un composable(ruta) por pantalla", "Las pantallas reciben funciones (ej. onLoginAdmin) y AppNavigation hace navController.navigate", "MainActivity llama a AppNavigation", "popUpTo para limpiar el historial al entrar/cerrar sesión"] },
+  { id: "o8", tema: "Room", p: "¿Cómo mantiene su app la sesión iniciada aunque se cierre?",
+    claves: ["Al iniciar sesión o registrarse se guarda una fila en la tabla sesion (SesionEntity) con SesionDao", "Al abrir la app, SesionViewModel consulta sesionDao.obtener() en su init", "Si existe, recupera el usuario y rutaInicial es Home (o panel admin)", "Si no existe, parte en Bienvenida", "Cerrar sesión borra la fila"] },
+  { id: "o9", tema: "Room", p: "¿Qué información guardan en la base de datos local y por qué decidieron guardarla ahí?",
+    claves: ["Usuarios registrados (usuarios)", "Sesión iniciada (sesion)", "Carrito (carrito)", "Pedidos (pedidos)", "Ingredientes frecuentes (ingredientes_frecuentes, lo pide el anexo)", "Eventos de búsqueda para las métricas del admin", "Justificación: es información del usuario en ese teléfono, rápida y sin internet; el backend llega en la Unidad 3"] },
+  { id: "o10", tema: "QR", p: "Explica cómo funciona la lectura de códigos QR en su app.",
+    claves: ["Librería ZXing (zxing-android-embedded)", "Permiso CAMERA en el AndroidManifest", "rememberLauncherForActivityResult(ScanContract()) abre la cámara", "resultado.contents trae el texto (null si cancela)", "EscanerQrViewModel.procesarCodigo separa OURSOUR:TIPO:ID con split y decide con when", "Abre producto, receta o guarda ingrediente en Room"] },
+  { id: "o11", tema: "Tema y Scaffold", p: "¿Qué es el tema de la app y cómo se aplica a todas las pantallas?",
+    claves: ["Estilo visual consistente", "Colores en Color.kt", "Esquema de colores (lightColorScheme: primary, onPrimary, secondary, background, surface, error...)", "OursourTheme envuelve MaterialTheme con ese esquema", "MainActivity envuelve la app con OursourTheme", "Los componentes toman el color del tema sin definirlo cada uno"] },
+  { id: "o12", tema: "Room", p: "¿Qué es una migración de base de datos y por qué la necesitaron?",
+    claves: ["Cambio de estructura de la base entre versiones", "Agregaron la tabla sesion: subieron version de 1 a 2", "MIGRACION_1_2 crea la tabla con CREATE TABLE", "Sin migración, la app se cae en teléfonos que ya tenían la versión anterior (o habría que borrar los datos)"] },
+  { id: "o13", tema: "Arquitectura", p: "Explica cómo están organizados los paquetes del proyecto y la responsabilidad de cada uno.",
+    claves: ["view: pantallas Compose (y view/components, view/admin)", "viewmodel: lógica y estado de cada pantalla", "navigation: Routes y AppNavigation", "model: data classes (Usuario, Producto, Receta, Ingrediente)", "data/local: Room (AppDatabase, dao, entity)", "data/repository: CatalogoRepository, SesionUsuario", "data/remote: Retrofit para la Unidad 3", "ui/theme: colores, tema y tipografía", "util: formato de precios, reglas de despacho"] },
+  { id: "o14", tema: "Gradle y KSP", p: "Nombra dependencias que agregaron al proyecto y para qué sirve cada una.",
+    claves: ["lifecycle-viewmodel-compose: viewModel() en Compose", "navigation-compose: NavHost y navegación", "room-runtime / room-ktx / room-compiler (con KSP): base de datos local", "zxing-android-embedded: leer y generar QR", "material-icons-extended: íconos", "retrofit y converter-gson / okhttp: backend en la Unidad 3"] },
+  { id: "o15", tema: "Arquitectura", p: "¿Cuál es la diferencia entre la base de datos local y consumir una API REST?",
+    claves: ["Local: vive solo en el teléfono; si se pierde el teléfono, se pierden los datos", "Local para preferencias, sesión, caché, carrito, favoritos", "API REST: base compartida en un servidor", "Con la API los datos se recuperan desde otro teléfono", "La mayor parte de una app real funciona con la API"] },
+  { id: "o16", tema: "Estado y ViewModel", p: "¿Por qué CheckoutViewModel se crea en AppNavigation y no dentro de cada pantalla?",
+    claves: ["Despacho, Resumen y Pago son un mismo flujo de compra", "Necesitan compartir la misma instancia", "Si cada pantalla creara el suyo con viewModel(), se perderían los datos ingresados en la anterior", "Se pasa como parámetro a las tres pantallas"] }
+];
+
+const DONDE = [
+  { id: "d1", tema: "Estado y ViewModel", p: "¿Dónde se valida la cuenta de administrador en duro (admin@oursour.cl)?", o: ["viewmodel/LoginViewModel.kt → login()", "view/LoginScreen.kt → Button onClick", "data/local/dao/UsuarioDao.kt → login()", "navigation/AppNavigation.kt → entrarA()"], c: 0,
+    e: "login() compara email y password con adminValido y passAdmin, con un solo return (validador)." },
+  { id: "d2", tema: "Compose", p: "¿Dónde se muestra el texto 'Credenciales inválidas'?", o: ["view/LoginScreen.kt → if (loginViewModel.textoVisible)", "viewmodel/LoginViewModel.kt → loginConsumidor()", "view/components/Componentes.kt", "ui/theme/Theme.kt"], c: 0,
+    e: "La pantalla lo muestra; el ViewModel solo cambia textoVisible." },
+  { id: "d3", tema: "Navegación", p: "¿Dónde están definidos los nombres de todas las rutas?", o: ["navigation/Routes.kt", "navigation/AppNavigation.kt", "MainActivity.kt", "AndroidManifest.xml"], c: 0,
+    e: "object Routes con const val BIENVENIDA, LOGIN, HOME, etc., y funciones como login(admin) para rutas con argumentos." },
+  { id: "d4", tema: "Navegación", p: "¿Qué decide si la app parte en el Home o en la Bienvenida?", o: ["viewmodel/SesionViewModel.kt → rutaInicial (usado como startDestination en AppNavigation)", "MainActivity.kt → onCreate", "view/BienvenidaScreen.kt", "navigation/Routes.kt"], c: 0,
+    e: "En su init consulta sesionDao.obtener(). AppNavigation espera con '?: return' hasta tener la respuesta." },
+  { id: "d5", tema: "Room", p: "¿Dónde está la consulta SQL que valida correo y contraseña de un cliente?", o: ["data/local/dao/UsuarioDao.kt → login(email, password)", "viewmodel/RegistroViewModel.kt", "data/local/AppDatabase.kt", "data/repository/SesionUsuario.kt"], c: 0,
+    e: "@Query con triple comillas: SELECT * FROM usuarios WHERE email = :email AND password = :password LIMIT 1." },
+  { id: "d6", tema: "Room", p: "¿Dónde está definida la tabla del carrito?", o: ["data/local/entity/Entidades.kt → CarritoItemEntity", "viewmodel/CarritoViewModel.kt", "view/CarritoScreen.kt", "data/local/dao/CarritoDao.kt"], c: 0,
+    e: "@Entity(tableName = \"carrito\") con productoId como @PrimaryKey." },
+  { id: "d7", tema: "Room", p: "¿Dónde se cambia la versión de la base de datos y se registra la migración?", o: ["data/local/AppDatabase.kt", "gradle/libs.versions.toml", "app/build.gradle.kts", "data/local/entity/Entidades.kt"], c: 0,
+    e: "@Database(entities = [...], version = 2) y .addMigrations(MIGRACION_1_2) en obtener()." },
+  { id: "d8", tema: "Tema y Scaffold", p: "¿Dónde están los colores de la marca (Dorado, Carbon, Crema…)?", o: ["ui/theme/Color.kt", "ui/theme/Theme.kt", "res/values/colors.xml", "view/components/Componentes.kt"], c: 0,
+    e: "Theme.kt los usa para armar LightColorScheme y DarkColorScheme." },
+  { id: "d9", tema: "Tema y Scaffold", p: "¿Dónde se arma el esquema de colores (primary, onPrimary, error…)?", o: ["ui/theme/Theme.kt", "ui/theme/Color.kt", "MainActivity.kt", "ui/theme/Type.kt"], c: 0,
+    e: "OursourTheme elige DarkColorScheme o LightColorScheme según isSystemInDarkTheme()." },
+  { id: "d10", tema: "QR", p: "¿Dónde se interpreta el texto leído del QR (OURSOUR:TIPO:ID)?", o: ["viewmodel/EscanerQrViewModel.kt → procesarCodigo()", "view/EscanerQrScreen.kt → BotonPrincipal", "navigation/AppNavigation.kt", "data/local/dao/IngredienteFrecuenteDao.kt"], c: 0,
+    e: "Devuelve un ResultadoQr (sealed class): AbrirProducto, AbrirReceta, IngredienteGuardado o NoReconocido." },
+  { id: "d11", tema: "QR", p: "¿Dónde se abre la cámara para escanear?", o: ["view/EscanerQrScreen.kt → rememberLauncherForActivityResult(ScanContract())", "viewmodel/EscanerQrViewModel.kt", "MainActivity.kt", "view/HomeScreen.kt"], c: 0,
+    e: "El botón 'Abrir cámara' arma ScanOptions y llama lanzadorEscaner.launch(opciones)." },
+  { id: "d12", tema: "QR", p: "¿Dónde se declara el permiso de cámara?", o: ["app/src/main/AndroidManifest.xml", "app/build.gradle.kts", "view/EscanerQrScreen.kt", "gradle/libs.versions.toml"], c: 0,
+    e: "<uses-permission android:name=\"android.permission.CAMERA\" />, junto al de INTERNET." },
+  { id: "d13", tema: "Tema y Scaffold", p: "¿Dónde está el botón flotante que abre el escáner QR?", o: ["view/HomeScreen.kt → floatingActionButton del Scaffold", "view/EscanerQrScreen.kt", "view/components/Componentes.kt → OurSourTopBar", "navigation/AppNavigation.kt"], c: 0,
+    e: "FloatingActionButton con containerColor secondary y RoundedCornerShape(16.dp)." },
+  { id: "d14", tema: "Estado y ViewModel", p: "¿Dónde se calcula el número que aparece sobre el ícono del carrito?", o: ["view/components/Componentes.kt → CarritoBoton (carritoViewModel.unidades con collectAsState)", "view/CarritoScreen.kt", "view/HomeScreen.kt", "util/Formato.kt"], c: 0,
+    e: "unidades es un Flow<Int> de carritoDao.contarUnidades() (SUM de cantidades)." },
+  { id: "d15", tema: "Arquitectura", p: "¿Dónde están el costo de despacho y el monto para envío gratis?", o: ["util/Formato.kt → object ReglasDespacho", "viewmodel/CheckoutViewModel.kt", "view/DespachoScreen.kt", "data/repository/CatalogoRepository.kt"], c: 0,
+    e: "COSTO_DESPACHO = 3990 y MONTO_ENVIO_GRATIS = 50000; calcular(subtotal, esRetiroEnTienda)." },
+  { id: "d16", tema: "Arquitectura", p: "¿Dónde están los productos, recetas e ingredientes del catálogo?", o: ["data/repository/CatalogoRepository.kt", "data/local/entity/Entidades.kt", "res/values/strings.xml", "data/remote/ApiService.kt"], c: 0,
+    e: "object CatalogoRepository con listas mutableStateListOf (datos ficticios en memoria, hasta la Unidad 3)." },
+  { id: "d17", tema: "Compose", p: "¿Dónde se decide qué imagen muestra cada producto?", o: ["view/components/Componentes.kt → imagenProducto(id) (imágenes en res/drawable)", "model/Producto.kt", "data/repository/CatalogoRepository.kt", "ui/theme/Theme.kt"], c: 0,
+    e: "Un when por id devuelve R.drawable.producto_limon, etc.; ImagenProducto la dibuja con painterResource." },
+  { id: "d18", tema: "Gradle y KSP", p: "¿Dónde se cambia la versión de Room?", o: ["gradle/libs.versions.toml → [versions] room", "app/build.gradle.kts", "data/local/AppDatabase.kt → version", "settings.gradle.kts"], c: 0,
+    e: "Ojo: 'version = 2' de AppDatabase es la versión de SU base de datos, no de la librería." },
+  { id: "d19", tema: "Room", p: "¿Dónde se guarda un usuario nuevo al registrarse?", o: ["viewmodel/RegistroViewModel.kt → registrar() con usuarioDao.insertar", "view/RegistroScreen.kt", "viewmodel/LoginViewModel.kt", "data/repository/SesionUsuario.kt"], c: 0,
+    e: "Antes valida con validar() y revisa con buscarPorEmail que el correo no exista. Luego guarda la marquita de sesión." },
+  { id: "d20", tema: "Navegación", p: "¿Dónde se borra la marquita de sesión al cerrar sesión?", o: ["viewmodel/SesionViewModel.kt → cerrarSesion() (llamado desde AppNavigation)", "view/HomeScreen.kt → IconButton", "data/local/AppDatabase.kt", "viewmodel/LoginViewModel.kt"], c: 0,
+    e: "HomeScreen solo avisa con onCerrarSesion; AppNavigation llama sesionViewModel.cerrarSesion() y navega a Bienvenida con popUpTo(0)." },
+  { id: "d21", tema: "Estado y ViewModel", p: "¿Dónde se crea el ViewModel que comparten Despacho, Resumen y Pago?", o: ["navigation/AppNavigation.kt → val checkoutViewModel: CheckoutViewModel = viewModel()", "view/DespachoScreen.kt", "view/PagoScreen.kt", "MainActivity.kt"], c: 0,
+    e: "Se pasa como parámetro a las tres pantallas para compartir la misma instancia." },
+  { id: "d22", tema: "Arquitectura", p: "¿Dónde está preparado Retrofit para conectarse al backend en la Unidad 3?", o: ["data/remote/ApiClient.kt y ApiService.kt", "data/local/AppDatabase.kt", "navigation/AppNavigation.kt", "viewmodel/LoginViewModel.kt"], c: 0,
+    e: "ApiClient usa BuildConfig.API_BASE_URL (10.0.2.2:8080 en debug). Aún no se usa: la pauta pide no conectar en esta prueba." }
+];
+
+const RETOS = [
+  { id: "x1", nivel: "Básico", tema: "Estado y ViewModel", titulo: "Checkbox 'Recordarme' en el login", archivo: "LoginViewModel.kt + LoginScreen.kt",
+    enunciado: "Agrega al LoginViewModel un estado Boolean recordarme que parta en false, con su función para cambiarlo. Luego, en LoginScreen, agrega debajo de la contraseña un Checkbox con el texto 'Recordarme' conectado a ese estado.",
+    codigo: `// LoginViewModel.kt
+var password by mutableStateOf("")
+    private set
+
+fun cambiarPassword(nuevaPassword: String) {
+    password = nuevaPassword
+}
+
+// LoginScreen.kt (debajo de la cajita de contraseña)
+OutlinedTextField(
+    value = loginViewModel.password,
+    onValueChange = { loginViewModel.cambiarPassword(it) },
+    label = { Text("Contraseña") },
+    singleLine = true,
+    visualTransformation = PasswordVisualTransformation(),
+    modifier = Modifier.fillMaxWidth()
+)
+`,
+    solucion: `// LoginViewModel.kt
+var recordarme by mutableStateOf(false)
+    private set
+
+fun cambiarRecordarme(valor: Boolean) {
+    recordarme = valor
+}
+
+// LoginScreen.kt
+Row(verticalAlignment = Alignment.CenterVertically) {
+    Checkbox(
+        checked = loginViewModel.recordarme,
+        onCheckedChange = { loginViewModel.cambiarRecordarme(it) }
+    )
+    Text(text = "Recordarme")
+}`,
+    claves: ["Estado Boolean con mutableStateOf(false) en el ViewModel", "Función que recibe un Boolean y cambia el estado", "Checkbox con checked leyendo el estado del ViewModel", "onCheckedChange llama a la función con it (true/false)", "Texto 'Recordarme' al lado (Row) o cerca"] },
+
+  { id: "x2", nivel: "Básico", tema: "Compose", titulo: "Deshabilitar Ingresar si falta un dato", archivo: "LoginScreen.kt",
+    enunciado: "Haz que el botón Ingresar quede deshabilitado mientras el correo o la contraseña estén vacíos.",
+    codigo: `Button(
+    onClick = {
+        loginViewModel.textoVisible = false
+        val validador = loginViewModel.login()
+        if (validador) {
+            onLoginAdmin()
+        } else {
+            loginViewModel.loginConsumidor(onLoginConsumidor)
+        }
+    },
+    modifier = Modifier.padding(top = 12.dp).fillMaxWidth().height(50.dp),
+    shape = RoundedCornerShape(5.dp)
+) {
+    Text(text = "Ingresar")
+}
+`,
+    solucion: `Button(
+    onClick = { /* igual que antes */ },
+    enabled = loginViewModel.email.isNotBlank() && loginViewModel.password.isNotBlank(),
+    modifier = Modifier.padding(top = 12.dp).fillMaxWidth().height(50.dp),
+    shape = RoundedCornerShape(5.dp)
+) {
+    Text(text = "Ingresar")
+}`,
+    claves: ["Usa el parámetro enabled del Button", "La condición lee email y password del ViewModel", "Ambos deben tener texto (isNotBlank / isNotEmpty / != \"\") unidos con &&", "No rompe el onClick existente"] },
+
+  { id: "x3", nivel: "Básico", tema: "Room", titulo: "Contar usuarios registrados", archivo: "data/local/dao/UsuarioDao.kt",
+    enunciado: "Agrega al UsuarioDao una función que devuelva cuántos usuarios hay registrados en la tabla.",
+    codigo: `@Dao
+interface UsuarioDao {
+
+    @Insert
+    suspend fun insertar(usuario: UsuarioEntity)
+
+    @Query("SELECT * FROM usuarios WHERE email = :email LIMIT 1")
+    suspend fun buscarPorEmail(email: String): UsuarioEntity?
+}
+`,
+    solucion: `@Query("SELECT COUNT(*) FROM usuarios")
+suspend fun contarUsuarios(): Int`,
+    claves: ["Anotación @Query (no existe @Count ni @Select)", "SQL con COUNT(*) sobre la tabla usuarios (nombre en minúscula, como en tableName)", "Función suspend que devuelve Int (o Flow<Int> sin suspend, también válido)", "Sin cuerpo: es una interfaz"] },
+
+  { id: "x4", nivel: "Medio", tema: "Room", titulo: "Buscar usuarios por nombre", archivo: "data/local/dao/UsuarioDao.kt",
+    enunciado: "Agrega una función al UsuarioDao que reciba un texto y devuelva, como Flow, la lista de usuarios cuyo nombre contenga ese texto, ordenados por nombre.",
+    codigo: `@Dao
+interface UsuarioDao {
+
+    @Query("SELECT * FROM usuarios ORDER BY nombre")
+    fun listar(): Flow<List<UsuarioEntity>>
+}
+`,
+    solucion: `@Query("SELECT * FROM usuarios WHERE nombre LIKE '%' || :texto || '%' ORDER BY nombre")
+fun buscarPorNombre(texto: String): Flow<List<UsuarioEntity>>`,
+    claves: ["@Query con WHERE nombre LIKE", "El parámetro :texto se llama igual que el de la función", "Comodines % alrededor del texto ('%' || :texto || '%'), o explicar que se pasan desde el ViewModel", "ORDER BY nombre", "Devuelve Flow<List<UsuarioEntity>> y por eso NO lleva suspend"] },
+
+  { id: "x5", nivel: "Medio", tema: "Navegación", titulo: "Nueva pantalla Perfil navegable", archivo: "Routes.kt + AppNavigation.kt + HomeScreen.kt",
+    enunciado: "Agrega una ruta PERFIL, regístrala en el NavHost apuntando a PerfilScreen (supón que ya existe y recibe onVolver), y haz que el Home pueda navegar a ella con una función onPerfil, como el resto de la app (sin pasar el navController a la pantalla).",
+    codigo: `// Routes.kt
+object Routes {
+    const val HOME = "home"
+    const val CARRITO = "carrito"
+}
+
+// AppNavigation.kt (dentro del NavHost)
+composable(Routes.HOME) {
+    HomeScreen(
+        onCarrito = { navController.navigate(Routes.CARRITO) },
+        onCerrarSesion = { cerrarSesion() }
+    )
+}
+
+// HomeScreen.kt
+@Composable
+fun HomeScreen(
+    onCarrito: () -> Unit,
+    onCerrarSesion: () -> Unit
+) { /* ... */ }
+`,
+    solucion: `// Routes.kt
+const val PERFIL = "perfil"
+
+// AppNavigation.kt
+composable(Routes.HOME) {
+    HomeScreen(
+        onCarrito = { navController.navigate(Routes.CARRITO) },
+        onCerrarSesion = { cerrarSesion() },
+        onPerfil = { navController.navigate(Routes.PERFIL) }
+    )
+}
+
+composable(Routes.PERFIL) {
+    PerfilScreen(onVolver = { navController.popBackStack() })
+}
+
+// HomeScreen.kt
+@Composable
+fun HomeScreen(
+    onCarrito: () -> Unit,
+    onCerrarSesion: () -> Unit,
+    onPerfil: () -> Unit
+) { /* un botón con onClick = onPerfil */ }`,
+    claves: ["const val PERFIL en Routes", "composable(Routes.PERFIL) { PerfilScreen(...) } dentro del NavHost", "onVolver usa navController.popBackStack()", "HomeScreen recibe onPerfil: () -> Unit", "AppNavigation pasa onPerfil = { navController.navigate(Routes.PERFIL) }", "La pantalla no recibe el navController"] },
+
+  { id: "x6", nivel: "Básico", tema: "Compose", titulo: "Crear PerfilScreen", archivo: "view/PerfilScreen.kt (nuevo)",
+    enunciado: "Crea la pantalla PerfilScreen: una Column que ocupe toda la pantalla, centrada vertical y horizontalmente, con un texto 'Hola, <nombre>' en 24 sp y negrita. El nombre sale de SesionUsuario.usuario?.nombre (si es null, 'Invitado').",
+    codigo: `package cl.oursour.mobile.view
+
+// Escribe aquí la pantalla
+`,
+    solucion: `@Composable
+fun PerfilScreen(onVolver: () -> Unit) {
+    val nombre = SesionUsuario.usuario?.nombre ?: "Invitado"
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Hola, \$nombre",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}`,
+    claves: ["Función con @Composable", "Column con Modifier.fillMaxSize()", "verticalArrangement = Arrangement.Center y horizontalAlignment = Alignment.CenterHorizontally", "Text con fontSize en sp (24.sp) y FontWeight.Bold", "Nombre desde SesionUsuario.usuario?.nombre con ?: \"Invitado\""] },
+
+  { id: "x7", nivel: "Básico", tema: "Tema y Scaffold", titulo: "Botón Ingresar con colores del tema", archivo: "LoginScreen.kt",
+    enunciado: "Cambia el botón Ingresar para que su fondo sea el color secondary del tema y su texto el color onSecondary, sin usar colores fijos como Color.Red.",
+    codigo: `Button(
+    onClick = { /* ... */ },
+    modifier = Modifier.padding(top = 12.dp).fillMaxWidth().height(50.dp),
+    shape = RoundedCornerShape(5.dp)
+) {
+    Text(text = "Ingresar")
+}
+`,
+    solucion: `Button(
+    onClick = { /* ... */ },
+    modifier = Modifier.padding(top = 12.dp).fillMaxWidth().height(50.dp),
+    shape = RoundedCornerShape(5.dp),
+    colors = ButtonDefaults.buttonColors(
+        containerColor = MaterialTheme.colorScheme.secondary,
+        contentColor = MaterialTheme.colorScheme.onSecondary
+    )
+) {
+    Text(text = "Ingresar")
+}`,
+    claves: ["Parámetro colors = ButtonDefaults.buttonColors(...)", "containerColor = MaterialTheme.colorScheme.secondary (fondo)", "contentColor = MaterialTheme.colorScheme.onSecondary (texto)", "Usa colores del tema, no fijos"] },
+
+  { id: "x8", nivel: "Básico", tema: "Estado y ViewModel", titulo: "Nombre de al menos 3 letras", archivo: "viewmodel/RegistroViewModel.kt",
+    enunciado: "Modifica validar() para que, además, exija que el nombre tenga al menos 3 caracteres (sin contar espacios al inicio o al final). Mensaje: 'El nombre debe tener al menos 3 letras'.",
+    codigo: `// Devuelve un mensaje de error o null si el formulario es válido
+private fun validar(): String? {
+    if (nombre.isBlank()) return "Ingresa tu nombre"
+    if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) return "El correo no tiene un formato válido"
+    if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres"
+    if (password != confirmarPassword) return "Las contraseñas no coinciden"
+    return null
+}
+`,
+    solucion: `private fun validar(): String? {
+    if (nombre.isBlank()) return "Ingresa tu nombre"
+    if (nombre.trim().length < 3) return "El nombre debe tener al menos 3 letras"
+    if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) return "El correo no tiene un formato válido"
+    if (password.length < 6) return "La contraseña debe tener al menos 6 caracteres"
+    if (password != confirmarPassword) return "Las contraseñas no coinciden"
+    return null
+}`,
+    claves: ["Nueva condición con nombre.trim().length < 3", "Devuelve el mensaje pedido", "Va después de revisar que no esté vacío (o lo reemplaza correctamente)", "Mantiene las validaciones existentes y el return null final"] },
+
+  { id: "x9", nivel: "Desafío", tema: "Room", titulo: "Agregar teléfono a UsuarioEntity (con migración)", archivo: "Entidades.kt + AppDatabase.kt",
+    enunciado: "Agrega la columna telefono (String, vacío por defecto) a UsuarioEntity sin perder los usuarios que ya existen en el teléfono. Escribe todos los cambios necesarios en la entidad y en AppDatabase.",
+    codigo: `// Entidades.kt
+@Entity(tableName = "usuarios")
+data class UsuarioEntity(
+    @PrimaryKey val email: String,
+    val nombre: String,
+    val password: String
+)
+
+// AppDatabase.kt
+@Database(
+    entities = [ /* ... */ ],
+    version = 2,
+    exportSchema = false
+)
+abstract class AppDatabase : RoomDatabase() {
+    companion object {
+        private val MIGRACION_1_2 = object : Migration(1, 2) { /* ... */ }
+
+        fun obtener(context: Context): AppDatabase { /* ...
+            .addMigrations(MIGRACION_1_2).build() */ }
+    }
+}
+`,
+    solucion: `// Entidades.kt
+@Entity(tableName = "usuarios")
+data class UsuarioEntity(
+    @PrimaryKey val email: String,
+    val nombre: String,
+    val password: String,
+    val telefono: String = ""
+)
+
+// AppDatabase.kt
+@Database(entities = [ /* ... */ ], version = 3, exportSchema = false)
+
+private val MIGRACION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE usuarios ADD COLUMN telefono TEXT NOT NULL DEFAULT ''")
+    }
+}
+
+// en obtener():
+.addMigrations(MIGRACION_1_2, MIGRACION_2_3).build()`,
+    claves: ["Nuevo campo val telefono: String (con valor por defecto para no romper los constructores existentes)", "Sube version de 2 a 3 en @Database", "Nueva Migration(2, 3) con ALTER TABLE usuarios ADD COLUMN telefono TEXT NOT NULL DEFAULT ''", "Registra la migración en addMigrations junto a la anterior", "Explica que sin migración la app se cae o pierde datos"] },
+
+  { id: "x10", nivel: "Desafío", tema: "QR", titulo: "Nuevo tipo de QR: CATALOGO", archivo: "viewmodel/EscanerQrViewModel.kt",
+    enunciado: "Agrega soporte para el código OURSOUR:CATALOGO:0, que debe devolver un nuevo resultado AbrirCatalogo (sin datos). Agrega el resultado a la sealed class y el caso al when.",
+    codigo: `sealed class ResultadoQr {
+    data class AbrirProducto(val productoId: Int) : ResultadoQr()
+    data class AbrirReceta(val recetaId: Int) : ResultadoQr()
+    data class IngredienteGuardado(val nombre: String) : ResultadoQr()
+    data class NoReconocido(val contenido: String) : ResultadoQr()
+}
+
+fun procesarCodigo(contenido: String): ResultadoQr {
+    val partes = contenido.trim().split(":")
+    val id = partes.getOrNull(2)?.toIntOrNull()
+
+    val resultado = if (partes.size == 3 && partes[0] == "OURSOUR" && id != null) {
+        when (partes[1]) {
+            "PRODUCTO" -> if (CatalogoRepository.buscarProducto(id) != null) ResultadoQr.AbrirProducto(id) else ResultadoQr.NoReconocido(contenido)
+            "RECETA" -> if (CatalogoRepository.buscarReceta(id) != null) ResultadoQr.AbrirReceta(id) else ResultadoQr.NoReconocido(contenido)
+            "INGREDIENTE" -> guardarIngrediente(id, contenido)
+            else -> ResultadoQr.NoReconocido(contenido)
+        }
+    } else {
+        ResultadoQr.NoReconocido(contenido)
+    }
+
+    ultimoResultado = resultado
+    return resultado
+}
+`,
+    solucion: `sealed class ResultadoQr {
+    // ...los anteriores
+    object AbrirCatalogo : ResultadoQr()
+}
+
+when (partes[1]) {
+    "PRODUCTO" -> /* igual */
+    "RECETA" -> /* igual */
+    "INGREDIENTE" -> guardarIngrediente(id, contenido)
+    "CATALOGO" -> ResultadoQr.AbrirCatalogo
+    else -> ResultadoQr.NoReconocido(contenido)
+}
+
+// Y en EscanerQrScreen.manejarCodigo:
+// is ResultadoQr.AbrirCatalogo -> onAbrirCatalogo()`,
+    claves: ["Nuevo object (o data object/class) AbrirCatalogo que hereda de ResultadoQr", "Nuevo caso \"CATALOGO\" en el when, antes del else", "Entiende que el '0' es necesario porque se exigen 3 partes y un id numérico", "Bonus: menciona manejarlo en la pantalla y navegar con una función"] },
+
+  { id: "x11", nivel: "Básico", tema: "Estado y ViewModel", titulo: "Total de unidades del carrito", archivo: "viewmodel/CarritoViewModel.kt",
+    enunciado: "Agrega al CarritoViewModel una función que reciba la lista del carrito y devuelva cuántas unidades hay en total (sumando las cantidades), parecida a calcularSubtotal.",
+    codigo: `fun calcularSubtotal(lista: List<CarritoItemEntity>): Int = lista.sumOf { it.precio * it.cantidad }
+`,
+    solucion: `fun calcularUnidades(lista: List<CarritoItemEntity>): Int = lista.sumOf { it.cantidad }`,
+    claves: ["Recibe List<CarritoItemEntity>", "Devuelve Int", "Suma it.cantidad (sumOf, o un for acumulando)"] },
+
+  { id: "x12", nivel: "Medio", tema: "Arquitectura", titulo: "Descuento del 10% sobre $30.000", archivo: "util/Formato.kt → ReglasDespacho",
+    enunciado: "Agrega a ReglasDespacho una constante con el monto mínimo (30000) y una función descuento(subtotal) que devuelva el 10% del subtotal si es igual o mayor a ese monto, o 0 si no.",
+    codigo: `object ReglasDespacho {
+    const val COSTO_DESPACHO = 3990
+    const val MONTO_ENVIO_GRATIS = 50000
+
+    fun calcular(subtotal: Int, esRetiroEnTienda: Boolean): Int {
+        return if (esRetiroEnTienda || subtotal >= MONTO_ENVIO_GRATIS || subtotal == 0) 0 else COSTO_DESPACHO
+    }
+}
+`,
+    solucion: `const val MONTO_DESCUENTO = 30000
+
+fun descuento(subtotal: Int): Int {
+    return if (subtotal >= MONTO_DESCUENTO) subtotal * 10 / 100 else 0
+}`,
+    claves: ["const val con 30000 dentro del object", "Función que recibe subtotal: Int y devuelve Int", "Condición subtotal >= monto", "Calcula el 10% (subtotal * 10 / 100 o subtotal / 10)", "Devuelve 0 en el otro caso"] },
+
+  { id: "x13", nivel: "Medio", tema: "Estado y ViewModel", titulo: "Mostrar unidades del carrito en el Home", archivo: "view/HomeScreen.kt",
+    enunciado: "En HomeScreen, debajo de '¿Qué vamos a preparar hoy?', muestra el texto 'Tienes N productos en el carro', donde N sale del Flow carritoViewModel.unidades. Agrega el ViewModel como parámetro de la pantalla.",
+    codigo: `@Composable
+fun HomeScreen(
+    onCarrito: () -> Unit,
+    onCerrarSesion: () -> Unit
+) {
+    val nombre = SesionUsuario.usuario?.nombre ?: "Invitado"
+    // ...
+    Text("Hola, \$nombre 👋", style = MaterialTheme.typography.headlineSmall)
+    Text("¿Qué vamos a preparar hoy?", color = MaterialTheme.colorScheme.onSurfaceVariant)
+}
+`,
+    solucion: `@Composable
+fun HomeScreen(
+    onCarrito: () -> Unit,
+    onCerrarSesion: () -> Unit,
+    carritoViewModel: CarritoViewModel = viewModel()
+) {
+    val unidades by carritoViewModel.unidades.collectAsState(initial = 0)
+    // ...
+    Text("¿Qué vamos a preparar hoy?", color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Text("Tienes \$unidades productos en el carro")
+}`,
+    claves: ["Parámetro carritoViewModel: CarritoViewModel = viewModel()", "Convierte el Flow con collectAsState(initial = 0)", "Usa 'by' (o .value) para leerlo", "Muestra el número en un Text con plantilla de texto"] },
+
+  { id: "x14", nivel: "Básico", tema: "Compose", titulo: "Aviso de contraseña corta en vivo", archivo: "view/RegistroScreen.kt",
+    enunciado: "Debajo de la cajita de contraseña del registro, muestra en color de error el texto 'Mínimo 6 caracteres' solo mientras la contraseña tenga entre 1 y 5 caracteres.",
+    codigo: `OutlinedTextField(
+    value = registroViewModel.password,
+    onValueChange = { registroViewModel.cambiarPassword(it) },
+    label = { Text("Contraseña") },
+    singleLine = true,
+    visualTransformation = PasswordVisualTransformation(),
+    modifier = Modifier.fillMaxWidth()
+)
+`,
+    solucion: `if (registroViewModel.password.length in 1..5) {
+    Text(
+        text = "Mínimo 6 caracteres",
+        color = MaterialTheme.colorScheme.error,
+        fontSize = 12.sp
+    )
+}`,
+    claves: ["if que lee registroViewModel.password", "Condición entre 1 y 5 (length in 1..5, o > 0 && < 6)", "Text con MaterialTheme.colorScheme.error", "Se actualiza solo porque password es un estado (recomposición)"] },
+
+  { id: "x15", nivel: "Medio", tema: "Room", titulo: "¿Existe una sesión guardada?", archivo: "data/local/dao/SesionDao.kt",
+    enunciado: "Agrega al SesionDao una función que responda true o false según si existe una sesión guardada en la tabla sesion.",
+    codigo: `@Dao
+interface SesionDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun guardar(sesion: SesionEntity)
+
+    @Query("SELECT * FROM sesion WHERE id = 1 LIMIT 1")
+    suspend fun obtener(): SesionEntity?
+
+    @Query("DELETE FROM sesion")
+    suspend fun borrar()
+}
+`,
+    solucion: `@Query("SELECT EXISTS(SELECT 1 FROM sesion)")
+suspend fun existeSesion(): Boolean
+
+// Alternativa válida:
+// @Query("SELECT COUNT(*) FROM sesion")
+// suspend fun contarSesiones(): Int   // y en el ViewModel: contarSesiones() > 0`,
+    claves: ["@Query sobre la tabla sesion", "Devuelve Boolean (con EXISTS) o Int (con COUNT) y lo compara", "suspend porque devuelve un solo valor", "Sin cuerpo"] }
+];
+
+/* =========================================================================
+   Estado, almacenamiento y capacidades
+   ========================================================================= */
+
+const CLAVE_LOCAL = "coctelera-kotlin:v1";
+const S = {
+  tab: "inicio",
+  puntos: 0, respondidas: 0, aciertos: 0,
+  porTema: {},           // tema -> {ok, total}
+  falladas: [],          // ids de MCQ/DONDE falladas
+  vivoOk: [],            // ids de retos logrados
+  mejorNota: null,
+  ticket: 0
+};
+function cargarLocal() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLAVE_LOCAL) || "null");
+    if (d) Object.assign(S, d, { tab: "inicio" });
+  } catch (e) { /* sin almacenamiento: se empieza de cero */ }
+}
+function guardarLocal() {
+  try { localStorage.setItem(CLAVE_LOCAL, JSON.stringify(S)); } catch (e) {}
+}
+
+const CAP = { db: null, user: null, sample: null, uid: null, me: null, puedeEscribir: true, ranking: [] };
+async function usar(nombre) {
+  try { return window.claude ? await window.claude.use(nombre) : null; } catch (e) { return null; }
+}
+
+let escribiendo = false, pendiente = false;
+async function guardarRemoto() {
+  if (!CAP.db || !CAP.uid || !CAP.puedeEscribir) return;
+  if (escribiendo) { pendiente = true; return; }
+  escribiendo = true;
+  try {
+    await CAP.db.doc("puntajes/" + CAP.uid).set({
+      puntos: S.puntos, respondidas: S.respondidas, aciertos: S.aciertos,
+      retosLogrados: S.vivoOk.length, mejorNota: S.mejorNota, actualizado: Date.now()
+    });
+  } catch (e) {
+    if (e && e.code === "invalid_argument") { CAP.puedeEscribir = false; renderInicio(); }
+  }
+  escribiendo = false;
+  if (pendiente) { pendiente = false; guardarRemoto(); }
+}
+function guardar() { guardarLocal(); guardarRemoto(); pintarPuntos(); }
+
+function sumar(tema, ok, puntos) {
+  S.respondidas++;
+  if (ok) S.aciertos++;
+  const t = S.porTema[tema] || (S.porTema[tema] = { ok: 0, total: 0 });
+  t.total++; if (ok) t.ok++;
+  S.puntos += puntos;
+}
+
+/* =========================================================================
+   Utilidades
+   ========================================================================= */
+
+const $ = (s, r = document) => r.querySelector(s);
+function h(tag, attrs = {}, ...hijos) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v;
+    else if (k === "html") n.innerHTML = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of hijos.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return n;
+}
+function mezclar(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c])); }
+// Convierte `código` dentro de un texto en <code>, escapando todo lo demás
+function conCodigo(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>"); }
+
+const KW = /\b(fun|val|var|class|data|object|interface|suspend|return|if|else|when|private|override|import|package|true|false|null|is|in|by|enum|sealed|abstract|companion)\b/;
+function resaltar(code) {
+  const re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("""[\s\S]*?"""|"(?:\\.|[^"\\\n])*")|(@\w+)|\b(fun|val|var|class|data|object|interface|suspend|return|if|else|when|private|override|import|package|true|false|null|is|in|by|enum|sealed|abstract|companion)\b/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(code))) {
+    out += esc(code.slice(last, m.index));
+    const cls = m[1] ? "com" : m[2] ? "str" : m[3] ? "ann" : "kw";
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    last = re.lastIndex;
+  }
+  return out + esc(code.slice(last));
+}
+function bloqueCodigo(titulo, code) {
+  return h("div", { class: "code-wrap" },
+    h("div", { class: "code-label" }, h("span", {}, titulo)),
+    h("pre", { class: "code", html: resaltar(code.replace(/\s+$/, "")) }));
+}
+function nTicket() { S.ticket = (S.ticket || 0) + 1; return String(S.ticket).padStart(3, "0"); }
+function pensando(texto) { return h("div", { class: "pensando", role: "status" }, h("i"), h("span", {}, texto)); }
+function textoError(e) {
+  const c = e && e.code;
+  if (c === "not_granted") return "No diste permiso para usar Claude en esta página. Puedes ver la respuesta modelo.";
+  if (c === "rate_limited") return "Demasiadas revisiones seguidas. Espera un momento y vuelve a intentar.";
+  if (c === "session_expired") return "Tu sesión de claude.ai expiró. Vuelve a iniciar sesión.";
+  if (c === "invalid_json") return "La revisión llegó en un formato inesperado. Intenta de nuevo.";
+  return "No se pudo revisar ahora. Intenta de nuevo en unos segundos.";
+}
+function editorTab(ta) {
+  ta.addEventListener("keydown", e => {
+    if (e.key === "Tab" && !e.shiftKey) {
+      e.preventDefault();
+      const s = ta.selectionStart, f = ta.selectionEnd;
+      ta.value = ta.value.slice(0, s) + "    " + ta.value.slice(f);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+    }
+  });
+}
+
+/* =========================================================================
+   Revisión con Claude
+   ========================================================================= */
+
+const CONTEXTO_APP = `Contexto: app Android "Our Sour" (Kotlin, Jetpack Compose, Material 3, MVVM, Navigation Compose, Room con KSP, ZXing para QR) de un curso de Desarrollo de Aplicaciones Móviles (DSY1105, Duoc UC, Chile). Paquetes: view (pantallas), viewmodel, navigation (Routes, AppNavigation), model, data/local (AppDatabase, dao, entity), data/repository (CatalogoRepository, SesionUsuario), data/remote (Retrofit, aún sin usar), ui/theme, util. Los ViewModels usan "var x by mutableStateOf(...)" con "private set" y funciones "cambiarX(it)"; las pantallas reciben su ViewModel con "= viewModel()" y funciones lambda para navegar.`;
+
+async function revisarCodigo(reto, codigo) {
+  const prompt = `Eres profesor de Desarrollo de Aplicaciones Móviles y corriges un ejercicio de "programación en vivo" de un estudiante que se prepara para su prueba oral (luego no podrá usar IA ni apuntes).
+${CONTEXTO_APP}
+
+Reglas de corrección:
+- Evalúa si el código del estudiante cumple el enunciado y compilaría dentro del contexto dado. Acepta soluciones equivalentes (otros nombres, otro estilo) si usan lo visto en clases.
+- No exijas imports ni código que el enunciado no pide. Ignora la indentación.
+- Si el estudiante no cambió nada relevante o escribió algo sin relación, puntaje 0.
+- Escribe en español de Chile, tuteando, frases cortas y concretas. No pegues la solución completa: da pistas.
+
+ENUNCIADO: ${reto.enunciado}
+ARCHIVO: ${reto.archivo}
+CRITERIOS:
+${reto.claves.map(c => "- " + c).join("\n")}
+SOLUCIÓN DE REFERENCIA (solo para ti):
+${reto.solucion}
+
+CÓDIGO ORIGINAL ENTREGADO AL ESTUDIANTE:
+${reto.codigo}
+
+CÓDIGO DEL ESTUDIANTE:
+${codigo}
+
+Responde SOLO con un objeto JSON con esta forma:
+{"puntaje": 0-10, "veredicto": "logrado" | "casi" | "no_logrado", "bien": ["..."], "corregir": ["..."], "pista": "una pista para el siguiente intento o vacío si está logrado", "explicalo": "1-2 frases de cómo explicaría este cambio en voz alta frente al profesor"}`;
+  return CAP.sample.json(prompt, { modelTier: "default" });
+}
+
+async function revisarAbierta(q, respuesta) {
+  const prompt = `Eres profesor de Desarrollo de Aplicaciones Móviles y evalúas la respuesta oral (aquí escrita) de un estudiante a una pregunta técnica de su prueba.
+${CONTEXTO_APP}
+
+PREGUNTA: ${q.p}
+PUNTOS CLAVE ESPERADOS:
+${q.claves.map(c => "- " + c).join("\n")}
+
+RESPUESTA DEL ESTUDIANTE:
+${respuesta}
+
+Reglas: no exijas todos los puntos para un 10; premia que explique con sus palabras y con ejemplos de su app. Corrige conceptos errados con claridad. Español de Chile, tuteando, breve.
+Responde SOLO con un objeto JSON:
+{"puntaje": 0-10, "veredicto": "logrado" | "casi" | "no_logrado", "bien": ["..."], "falto": ["..."], "respuesta_modelo": "2-4 frases como lo diría un estudiante que domina el tema"}`;
+  return CAP.sample.json(prompt, { modelTier: "default" });
+}
+
+async function revisarSimulacro(items) {
+  const partes = items.map((it, i) => {
+    if (it.tipo === "abierta") return `ITEM ${i + 1} (id ${it.id}) — PREGUNTA TÉCNICA: ${it.q.p}\nPuntos clave: ${it.q.claves.join("; ")}\nRespuesta: ${it.respuesta || "(sin respuesta)"}`;
+    return `ITEM ${i + 1} (id ${it.id}) — PROGRAMACIÓN EN VIVO: ${it.q.enunciado}\nCriterios: ${it.q.claves.join("; ")}\nSolución de referencia: ${it.q.solucion}\nCódigo original:\n${it.q.codigo}\nCódigo del estudiante:\n${it.respuesta || "(sin respuesta)"}`;
+  }).join("\n\n");
+  const prompt = `Eres profesor de Desarrollo de Aplicaciones Móviles y corriges un simulacro de prueba (preguntas técnicas individuales + programación en vivo). Sé justo y exigente como en una prueba real.
+${CONTEXTO_APP}
+
+${partes}
+
+Para cada item da un puntaje de 0 a 10 y un comentario de 1-2 frases (qué estuvo bien y qué faltó). Sin respuesta = 0. Español de Chile, tuteando.
+Responde SOLO con JSON: {"items": [{"id": "...", "puntaje": 0-10, "comentario": "..."}], "resumen": "2 frases: en qué está fuerte y qué repasar"}`;
+  return CAP.sample.json(prompt, { modelTier: "default" });
+}
+
+function sello(v) {
+  const t = { logrado: "Logrado", casi: "Casi", no_logrado: "No logrado" }[v] || "Revisado";
+  return h("span", { class: "sello " + (v in { logrado: 1, casi: 1, no_logrado: 1 } ? v : "casi") }, t);
+}
+function lista(titulo, items) {
+  const arr = (Array.isArray(items) ? items : []).filter(Boolean);
+  if (!arr.length) return null;
+  return h("div", {}, h("h4", {}, titulo), h("ul", {}, arr.map(x => h("li", { html: conCodigo(String(x)) }))));
+}
+
+/* =========================================================================
+   Navegación entre pestañas
+   ========================================================================= */
+
+function irA(tab) {
+  S.tab = tab;
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
+  for (const id of ["inicio", "teoria", "donde", "vivo", "simulacro"]) $("#p-" + id).hidden = id !== tab;
+  if (tab === "inicio") renderInicio();
+  if (tab === "teoria" && !$("#p-teoria").firstChild) renderTeoria();
+  if (tab === "donde" && !$("#p-donde").firstChild) renderDonde();
+  if (tab === "vivo" && !$("#p-vivo").firstChild) renderVivoLista();
+  if (tab === "simulacro" && !$("#p-simulacro").firstChild) renderSimInicio();
+  window.scrollTo({ top: 0 });
+}
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => irA(b.dataset.tab)));
+
+function pintarPuntos() { $("#pts").textContent = S.puntos.toLocaleString("es-CL") + " pts"; }
+
+/* =========================================================================
+   INICIO
+   ========================================================================= */
+
+function diasParaEntrega() {
+  const entrega = new Date(2026, 9, 26, 19, 0, 0); // lunes 26 oct 2026, 19:00
+  const ms = entrega - new Date();
+  if (ms <= 0) return null;
+  return { d: Math.floor(ms / 86400000), h: Math.floor(ms / 3600000) % 24 };
+}
+
+function renderInicio() {
+  const p = $("#p-inicio");
+  p.replaceChildren();
+  const dl = diasParaEntrega();
+  const pct = S.respondidas ? Math.round((S.aciertos / S.respondidas) * 100) : null;
+
+  p.append(h("div", { class: "wrap" },
+    h("div", { class: "hero" },
+      h("span", { class: "eyebrow" }, "Etapas 3 y 4 de la Prueba 2"),
+      h("h1", {}, "Entrena las preguntas técnicas y la programación en vivo"),
+      h("p", { class: "muted" }, "Todo sale de los videos del curso y del código real de Our Sour. En la prueba no hay apuntes ni IA: aquí Claude te corrige para que allá respondas solo."),
+      h("div", { class: "cuentaregresiva" },
+        dl ? [h("b", {}, dl.d + "d " + dl.h + "h"), h("span", { class: "muted small" }, "para la entrega del lunes 26 de octubre, 19:00")]
+           : h("span", { class: "muted" }, "La entrega ya pasó. Sigue practicando para la presentación."))
+    ),
+    h("div", { class: "modos" },
+      modoCard("teoria", "Etapa 3", "Preguntas técnicas", `${MCQ.length} de alternativas y ${ABIERTAS.length} para responder con tus palabras.`),
+      modoCard("donde", "Etapa 4", "¿Dónde está?", `${DONDE.length} preguntas: en qué archivo y función vive cada cosa.`),
+      modoCard("vivo", "Etapa 4", "Programar en vivo", `${RETOS.length} desafíos sobre el código real. Claude revisa tu solución.`),
+      modoCard("simulacro", "Ensayo", "Simulacro", "3 preguntas + 1 '¿dónde está?' + 1 desafío, con reloj y nota 1,0 a 7,0.")
+    ),
+    h("div", { class: "dos-col" },
+      h("div", { class: "panel-box" },
+        h("h3", {}, "Tu avance por tema"),
+        h("p", { class: "small muted" }, pct == null ? "Todavía no respondes preguntas." :
+          `${S.aciertos} de ${S.respondidas} correctas (${pct}%) · ${S.vivoOk.length} de ${RETOS.length} desafíos logrados` + (S.mejorNota ? ` · mejor simulacro: ${S.mejorNota.toFixed(1).replace(".", ",")}` : "")),
+        TEMAS.map(t => {
+          const v = S.porTema[t];
+          const pc = v && v.total ? Math.round(v.ok / v.total * 100) : 0;
+          return h("div", { class: "barra-tema" }, h("span", {}, t), h("span", {}, v ? pc + "%" : "–"),
+            h("div", { class: "riel" }, h("i", { style: `width:${pc}%` })));
+        }),
+        S.falladas.length ? h("button", { class: "btn sec", onclick: () => { teoriaEstado.tema = "Mis errores"; teoriaEstado.deck = []; $("#p-teoria").replaceChildren(); irA("teoria"); } }, `Repasar mis ${S.falladas.length} errores`) : null
+      ),
+      h("div", { class: "panel-box" },
+        h("h3", {}, "Ranking del grupo"),
+        rankingNodo()
+      )
+    ),
+    h("p", { class: "aviso" }, "Recuerda la pauta: en la etapa 4 te pueden pedir identificar dónde está una funcionalidad, explicar un trozo de código, modificar algo existente o implementar algo pequeño. Practica explicando en voz alta lo que escribes.")
+  ));
+}
+function modoCard(tab, eyebrow, titulo, texto) {
+  return h("button", { class: "modo", onclick: () => irA(tab) },
+    h("span", { class: "eyebrow" }, eyebrow), h("h3", {}, titulo), h("p", { class: "small muted" }, texto));
+}
+
+let perfiles = {};
+function rankingNodo() {
+  if (!CAP.db) return h("p", { class: "aviso" }, window.claude ? "Cargando ranking…" : "El ranking aparece cuando abres el juego desde claude.ai.");
+  const filas = CAP.ranking;
+  const nodos = [];
+  if (!CAP.puedeEscribir) nodos.push(h("p", { class: "aviso" }, "Tienes acceso de solo lectura: tu puntaje no se guarda en el ranking. Pide acceso de Colaborador."));
+  if (!filas.length) { nodos.push(h("p", { class: "small muted" }, "Nadie ha jugado todavía. Responde una pregunta para aparecer aquí.")); return nodos; }
+  nodos.push(h("ol", { class: "rank" }, filas.map((f, i) => {
+    const pf = perfiles[f.id] || {};
+    const yo = f.id === CAP.uid;
+    return h("li", { class: yo ? "yo" : "" },
+      h("span", { class: "pos" }, i + 1),
+      pf.avatarUrl ? h("img", { src: pf.avatarUrl, alt: "" }) : h("span"),
+      h("span", { class: "quien" }, (pf.name || "Compañero") + (yo ? " (tú)" : "")),
+      h("span", { class: "p" }, (f.puntos || 0).toLocaleString("es-CL")));
+  })));
+  return nodos;
+}
+async function refrescarPerfiles() {
+  if (!CAP.user) return;
+  try { perfiles = await CAP.user.profiles(CAP.ranking.map(f => f.id)); } catch (e) {}
+  if (S.tab === "inicio") renderInicio();
+}
+
+/* =========================================================================
+   Motor de alternativas (Preguntas técnicas y ¿Dónde está?)
+   ========================================================================= */
+
+function tarjetaMCQ(q, { etiqueta, onSiguiente }) {
+  const correcta = q.o[q.c];
+  const opciones = mezclar(q.o);
+  const ticket = h("article", { class: "ticket" });
+  const explica = h("div", { hidden: true });
+  const acciones = h("div", { class: "acciones", hidden: true },
+    h("button", { class: "btn", onclick: onSiguiente }, "Siguiente comanda"));
+  const opts = h("div", { class: "opts", role: "group", "aria-label": "Alternativas" },
+    opciones.map((o, i) => h("button", { class: "opt", onclick: ev => responder(ev.currentTarget, o) },
+      h("span", { class: "letra" }, "ABCD"[i]), h("span", { html: conCodigo(o) }))));
+
+  function responder(btn, o) {
+    const ok = o === correcta;
+    opts.querySelectorAll(".opt").forEach((b, i) => {
+      b.disabled = true;
+      if (opciones[i] === correcta) b.classList.add("ok");
+    });
+    if (!ok) btn.classList.add("bad");
+    sumar(q.tema, ok, ok ? 10 : 0);
+    const f = new Set(S.falladas);
+    ok ? f.delete(q.id) : f.add(q.id);
+    S.falladas = [...f];
+    guardar();
+    explica.replaceChildren(h("div", { class: "explica " + (ok ? "ok" : "bad") },
+      h("b", {}, ok ? "¡Correcto! +10" : "Era: " + correcta),
+      h("p", { html: conCodigo(q.e) })));
+    explica.hidden = false; acciones.hidden = false;
+    acciones.querySelector("button").focus();
+  }
+
+  ticket.append(
+    h("div", { class: "ticket-head" }, h("span", { class: "eyebrow" }, etiqueta + " Nº " + nTicket()), h("span", { class: "chip" }, q.tema)),
+    h("p", { class: "pregunta", html: conCodigo(q.p) }), opts, explica, acciones);
+  return ticket;
+}
+
+function siguienteDeMazo(estado, pool) {
+  if (!estado.deck.length) estado.deck = mezclar(pool.map(q => q.id));
+  const id = estado.deck.shift();
+  return pool.find(q => q.id === id);
+}
+
+/* ---------- Preguntas técnicas ---------- */
+
+const teoriaEstado = { tema: "Todos", modo: "alt", deck: [] };
+function poolTeoria() {
+  if (teoriaEstado.tema === "Mis errores") {
+    const set = new Set(S.falladas);
+    return [...MCQ, ...DONDE].filter(q => set.has(q.id));
+  }
+  const base = teoriaEstado.modo === "alt" ? MCQ : ABIERTAS;
+  return teoriaEstado.tema === "Todos" ? base : base.filter(q => q.tema === teoriaEstado.tema);
+}
+function renderTeoria() {
+  const p = $("#p-teoria");
+  p.replaceChildren();
+  const filtros = ["Todos", ...TEMAS];
+  if (S.falladas.length && teoriaEstado.modo === "alt") filtros.push("Mis errores");
+  const pool = poolTeoria();
+  const zona = h("div");
+  p.append(h("div", { class: "wrap" },
+    h("div", {}, h("span", { class: "eyebrow" }, "Etapa 3"), h("h2", {}, "Preguntas técnicas")),
+    h("div", { class: "chips", role: "group", "aria-label": "Tipo de pregunta" },
+      h("button", { class: "chip" + (teoriaEstado.modo === "alt" ? " on" : ""), onclick: () => { teoriaEstado.modo = "alt"; teoriaEstado.deck = []; renderTeoria(); } }, "Alternativas"),
+      h("button", { class: "chip" + (teoriaEstado.modo === "abierta" ? " on" : ""), onclick: () => { teoriaEstado.modo = "abierta"; if (teoriaEstado.tema === "Mis errores") teoriaEstado.tema = "Todos"; teoriaEstado.deck = []; renderTeoria(); } }, "Con mis palabras (como en la prueba)")),
+    h("div", { class: "chips", role: "group", "aria-label": "Tema" },
+      filtros.map(t => h("button", { class: "chip" + (teoriaEstado.tema === t ? " on" : ""), onclick: () => { teoriaEstado.tema = t; teoriaEstado.deck = []; renderTeoria(); } }, t))),
+    zona));
+  if (!pool.length) { zona.append(h("p", { class: "aviso" }, teoriaEstado.tema === "Mis errores" ? "No tienes errores pendientes. ¡Bien!" : "No hay preguntas de este tema en este formato. Prueba con Alternativas.")); return; }
+  const siguiente = () => {
+    const q = siguienteDeMazo(teoriaEstado, poolTeoria());
+    if (!q) { renderTeoria(); return; }
+    zona.replaceChildren(teoriaEstado.modo === "alt" || teoriaEstado.tema === "Mis errores"
+      ? tarjetaMCQ(q, { etiqueta: "Comanda", onSiguiente: siguiente })
+      : tarjetaAbierta(q, siguiente));
+  };
+  siguiente();
+}
+
+function tarjetaAbierta(q, onSiguiente) {
+  const ta = h("textarea", { id: "resp-" + q.id, placeholder: "Responde como si se lo explicaras al profesor…", rows: 5 });
+  const salida = h("div");
+  const btnRev = h("button", { class: "btn oro" }, CAP.sample ? "Corregir con Claude" : "Ver respuesta modelo");
+  const btnSig = h("button", { class: "btn sec", onclick: onSiguiente }, "Otra pregunta");
+  btnRev.addEventListener("click", async () => {
+    const r = ta.value.trim();
+    if (!CAP.sample) { salida.replaceChildren(modelo(q)); return; }
+    if (r.length < 15) { salida.replaceChildren(h("p", { class: "aviso" }, "Escribe una respuesta más completa antes de corregir.")); return; }
+    btnRev.disabled = true;
+    salida.replaceChildren(pensando("Claude está leyendo tu respuesta…"));
+    try {
+      const fb = await revisarAbierta(q, r);
+      const pts = Math.max(0, Math.min(10, Math.round(Number(fb.puntaje) || 0)));
+      sumar(q.tema, pts >= 6, pts); guardar();
+      salida.replaceChildren(h("div", { class: "fb" },
+        h("div", { class: "fb-head" }, h("span", { class: "nota" }, pts + "/10"), sello(fb.veredicto), h("span", { class: "small muted" }, "+" + pts + " pts")),
+        lista("Bien", fb.bien), lista("Te faltó", fb.falto),
+        fb.respuesta_modelo ? h("div", {}, h("h4", {}, "Así lo diría alguien que lo domina"), h("p", { html: conCodigo(fb.respuesta_modelo) })) : null));
+    } catch (e) {
+      salida.replaceChildren(h("p", { class: "aviso" }, textoError(e)), modelo(q));
+    }
+    btnRev.disabled = false;
+  });
+  return h("article", { class: "ticket" },
+    h("div", { class: "ticket-head" }, h("span", { class: "eyebrow" }, "Pregunta oral Nº " + nTicket()), h("span", { class: "chip" }, q.tema)),
+    h("p", { class: "pregunta" }, q.p),
+    h("label", { for: "resp-" + q.id, class: "small muted" }, "Tu respuesta"), ta,
+    h("div", { class: "acciones" }, btnRev, btnSig), salida);
+}
+function modelo(q) {
+  return h("div", { class: "explica" }, h("b", {}, "Puntos que deberías mencionar"),
+    h("ul", {}, q.claves.map(c => h("li", { html: conCodigo(c) }))));
+}
+
+/* ---------- ¿Dónde está? ---------- */
+
+const dondeEstado = { deck: [] };
+function renderDonde() {
+  const p = $("#p-donde");
+  const zona = h("div");
+  p.replaceChildren(h("div", { class: "wrap" },
+    h("div", {}, h("span", { class: "eyebrow" }, "Etapa 4"), h("h2", {}, "¿Dónde está?")),
+    h("p", { class: "muted" }, "El profe te va a pedir abrir el archivo exacto. Antes de elegir, intenta decir en voz alta la carpeta, el archivo y la función."),
+    zona));
+  const siguiente = () => zona.replaceChildren(tarjetaMCQ(siguienteDeMazo(dondeEstado, DONDE), { etiqueta: "Búsqueda", onSiguiente: siguiente }));
+  siguiente();
+}
+
+/* =========================================================================
+   PROGRAMAR EN VIVO
+   ========================================================================= */
+
+function renderVivoLista() {
+  const p = $("#p-vivo");
+  p.replaceChildren(h("div", { class: "wrap" },
+    h("div", {}, h("span", { class: "eyebrow" }, "Etapa 4"), h("h2", {}, "Programar en vivo")),
+    h("p", { class: "muted" }, CAP.sample
+      ? "Elige un desafío, escribe el código en el editor y pide la revisión. Claude te dice qué está bien, qué corregir y cómo explicarlo."
+      : "Elige un desafío y escribe tu solución. Desde claude.ai, Claude la revisa; aquí puedes compararla con la solución modelo."),
+    h("div", { class: "retos" }, RETOS.map(r => h("button", { class: "reto", onclick: () => renderReto(r) },
+      h("b", {}, r.titulo),
+      h("span", { class: "arch" }, r.archivo),
+      h("span", { class: "estado" }, S.vivoOk.includes(r.id) ? h("span", { class: "check" }, "✓ logrado") : h("span", { class: "nivel" }, r.nivel)))))));
+}
+
+function renderReto(r) {
+  const p = $("#p-vivo");
+  const ta = h("textarea", { class: "editor", id: "ed-" + r.id, spellcheck: "false", autocapitalize: "off", autocomplete: "off", "aria-label": "Editor de código" });
+  ta.value = r.codigo;
+  editorTab(ta);
+  const salida = h("div");
+  const solucion = h("div", { hidden: true }, bloqueCodigo("Solución modelo", r.solucion));
+  const btnRev = h("button", { class: "btn oro" }, CAP.sample ? "Revisar con Claude" : "Comparar con la solución");
+  const btnPista = h("button", { class: "btn sec" }, "Ver criterios");
+  const btnSol = h("button", { class: "btn sec" }, "Ver solución");
+  let intentos = 0;
+
+  btnPista.addEventListener("click", () => {
+    salida.replaceChildren(h("div", { class: "explica" }, h("b", {}, "Lo que se va a revisar"),
+      h("ul", {}, r.claves.map(c => h("li", { html: conCodigo(c) })))));
+  });
+  btnSol.addEventListener("click", () => { solucion.hidden = !solucion.hidden; btnSol.textContent = solucion.hidden ? "Ver solución" : "Ocultar solución"; });
+  btnRev.addEventListener("click", async () => {
+    const codigo = ta.value;
+    if (!CAP.sample) { solucion.hidden = false; btnSol.textContent = "Ocultar solución"; return; }
+    if (codigo.replace(/\s/g, "") === r.codigo.replace(/\s/g, "")) {
+      salida.replaceChildren(h("p", { class: "aviso" }, "Todavía no cambias nada en el editor."));
+      return;
+    }
+    btnRev.disabled = true;
+    salida.replaceChildren(pensando("Claude está revisando tu código…"));
+    try {
+      const fb = await revisarCodigo(r, codigo);
+      intentos++;
+      const pts = Math.max(0, Math.min(10, Math.round(Number(fb.puntaje) || 0)));
+      const primeraVez = fb.veredicto === "logrado" && !S.vivoOk.includes(r.id);
+      if (primeraVez) S.vivoOk.push(r.id);
+      // Solo el primer logro y los intentos fallidos suman, para que repetir no infle el ranking
+      const suma = primeraVez ? pts * 2 : (S.vivoOk.includes(r.id) ? 0 : Math.round(pts / 2));
+      sumar(r.tema, fb.veredicto === "logrado", suma); guardar();
+      salida.replaceChildren(h("div", { class: "fb" },
+        h("div", { class: "fb-head" }, h("span", { class: "nota" }, pts + "/10"), sello(fb.veredicto), h("span", { class: "small muted" }, suma ? "+" + suma + " pts" : "intento " + intentos)),
+        lista("Bien", fb.bien), lista("Corregir", fb.corregir),
+        fb.pista ? h("div", {}, h("h4", {}, "Pista"), h("p", { html: conCodigo(fb.pista) })) : null,
+        fb.explicalo ? h("div", {}, h("h4", {}, "Explícalo así frente al profe"), h("p", { html: conCodigo(fb.explicalo) })) : null));
+    } catch (e) {
+      salida.replaceChildren(h("p", { class: "aviso" }, textoError(e)));
+    }
+    btnRev.disabled = false;
+  });
+
+  p.replaceChildren(h("div", { class: "wrap" },
+    h("div", { class: "acciones" }, h("button", { class: "btn sec", onclick: renderVivoLista }, "← Todos los desafíos")),
+    h("article", { class: "ticket" },
+      h("div", { class: "ticket-head" }, h("span", { class: "eyebrow" }, "Desafío · " + r.archivo), h("span", { class: "nivel" }, r.nivel)),
+      h("h2", {}, r.titulo),
+      h("p", { html: conCodigo(r.enunciado) }),
+      h("div", { class: "code-wrap" }, h("div", { class: "code-label" }, h("label", { for: "ed-" + r.id }, "Tu código (edita aquí)"), h("span", {}, "Tab = 4 espacios")), ta),
+      h("div", { class: "acciones" }, btnRev, btnPista, btnSol),
+      salida, solucion)));
+  ta.focus();
+  window.scrollTo({ top: 0 });
+}
+
+/* =========================================================================
+   SIMULACRO
+   ========================================================================= */
+
+let sim = null, relojId = null;
+const MIN_SIM = 15;
+
+function notaChilena(pct) {
+  // Escala 1,0 a 7,0 con 60% de exigencia (4,0 = 60%)
+  const n = pct >= 0.6 ? 4 + 3 * (pct - 0.6) / 0.4 : 1 + 3 * pct / 0.6;
+  return Math.round(n * 10) / 10;
+}
+
+function renderSimInicio() {
+  clearInterval(relojId);
+  $("#p-simulacro").replaceChildren(h("div", { class: "wrap" },
+    h("div", {}, h("span", { class: "eyebrow" }, "Ensayo completo"), h("h2", {}, "Simulacro de prueba")),
+    h("article", { class: "ticket" },
+      h("p", {}, "Igual que en la presentación, sin pistas ni soluciones a la vista:"),
+      h("ul", {},
+        h("li", {}, "3 preguntas técnicas para responder con tus palabras (etapa 3)"),
+        h("li", {}, "1 pregunta de '¿dónde está?' (etapa 4)"),
+        h("li", {}, "1 desafío de programación en vivo (etapa 4)")),
+      h("p", { class: "muted small" }, `Tienes ${MIN_SIM} minutos. Al final ${CAP.sample ? "Claude corrige todo de una vez y te pone nota de 1,0 a 7,0" : "verás las respuestas modelo para autoevaluarte"}.`),
+      h("div", { class: "acciones" }, h("button", { class: "btn oro", onclick: empezarSim }, "Empezar simulacro")))));
+}
+
+function empezarSim() {
+  const abiertas = mezclar(ABIERTAS).slice(0, 3);
+  const donde = mezclar(DONDE)[0];
+  const reto = mezclar(RETOS.filter(r => r.nivel !== "Desafío"))[0];
+  sim = {
+    inicio: Date.now(), paso: 0, terminado: false,
+    items: [
+      ...abiertas.map(q => ({ tipo: "abierta", id: q.id, q, respuesta: "" })),
+      { tipo: "donde", id: donde.id, q: donde, respuesta: null },
+      { tipo: "codigo", id: reto.id, q: reto, respuesta: reto.codigo }
+    ]
+  };
+  relojId = setInterval(pintarReloj, 1000);
+  renderSimPaso();
+}
+
+function restante() { return Math.max(0, MIN_SIM * 60000 - (Date.now() - sim.inicio)); }
+function pintarReloj() {
+  const r = $("#reloj");
+  if (!r || !sim) return;
+  const ms = restante();
+  r.textContent = String(Math.floor(ms / 60000)).padStart(2, "0") + ":" + String(Math.floor(ms / 1000) % 60).padStart(2, "0");
+  r.classList.toggle("alerta", ms < 120000);
+  if (ms === 0) r.textContent = "00:00 · tiempo";
+}
+
+function renderSimPaso() {
+  const it = sim.items[sim.paso];
+  const total = sim.items.length;
+  let cuerpo;
+  if (it.tipo === "abierta") {
+    const ta = h("textarea", { id: "sim-" + it.id, rows: 6, placeholder: "Responde como si hablaras frente al profesor…" });
+    ta.value = it.respuesta;
+    ta.addEventListener("input", () => { it.respuesta = ta.value; });
+    cuerpo = [h("span", { class: "chip" }, it.q.tema), h("p", { class: "pregunta" }, it.q.p), h("label", { for: "sim-" + it.id, class: "small muted" }, "Tu respuesta"), ta];
+  } else if (it.tipo === "donde") {
+    const correcta = it.q.o[it.q.c];
+    it.opciones = it.opciones || mezclar(it.q.o);
+    cuerpo = [h("span", { class: "chip" }, "¿Dónde está?"), h("p", { class: "pregunta", html: conCodigo(it.q.p) }),
+      h("div", { class: "opts" }, it.opciones.map((o, i) => h("button", {
+        class: "opt" + (it.respuesta === o ? " ok" : ""), "aria-pressed": String(it.respuesta === o),
+        onclick: () => { it.respuesta = o; it.correcta = o === correcta; renderSimPaso(); }
+      }, h("span", { class: "letra" }, "ABCD"[i]), h("span", { html: conCodigo(o) }))))];
+  } else {
+    const ta = h("textarea", { class: "editor", id: "sim-ed", spellcheck: "false", autocapitalize: "off", "aria-label": "Editor de código" });
+    ta.value = it.respuesta;
+    editorTab(ta);
+    ta.addEventListener("input", () => { it.respuesta = ta.value; });
+    cuerpo = [h("span", { class: "chip" }, it.q.archivo), h("h3", {}, it.q.titulo), h("p", { html: conCodigo(it.q.enunciado) }), ta];
+  }
+  const ultimo = sim.paso === total - 1;
+  $("#p-simulacro").replaceChildren(h("div", { class: "wrap" },
+    h("div", { class: "top-row" }, h("span", { class: "eyebrow" }, `Simulacro · ${sim.paso + 1} de ${total}`), h("span", { class: "reloj", id: "reloj" }, "--:--")),
+    h("div", { class: "progreso", "aria-hidden": "true" }, sim.items.map((_, i) => h("i", { class: i <= sim.paso ? "hecho" : "" }))),
+    h("article", { class: "ticket" }, cuerpo,
+      h("div", { class: "acciones" },
+        sim.paso > 0 ? h("button", { class: "btn sec", onclick: () => { sim.paso--; renderSimPaso(); } }, "← Anterior") : null,
+        ultimo ? h("button", { class: "btn oro", onclick: terminarSim }, "Terminar y corregir")
+               : h("button", { class: "btn", onclick: () => { sim.paso++; renderSimPaso(); } }, "Siguiente →"),
+        h("button", { class: "btn sec", onclick: renderSimInicio }, "Abandonar")))));
+  pintarReloj();
+}
+
+async function terminarSim() {
+  clearInterval(relojId);
+  sim.terminado = true;
+  const usado = Math.round((Date.now() - sim.inicio) / 60000);
+  const p = $("#p-simulacro");
+  const donde = sim.items.find(i => i.tipo === "donde");
+  const ptsDonde = donde.correcta ? 10 : 0;
+  const textos = sim.items.filter(i => i.tipo !== "donde");
+
+  if (!CAP.sample) {
+    p.replaceChildren(h("div", { class: "wrap" }, h("h2", {}, "Autoevaluación"),
+      h("p", { class: "muted" }, `Usaste ${usado} min. ¿Dónde está?: ${donde.correcta ? "correcto" : "incorrecto (era " + donde.q.o[donde.q.c] + ")"}.`),
+      textos.map(it => h("article", { class: "ticket" }, h("h3", {}, it.q.p || it.q.titulo),
+        it.tipo === "abierta" ? modelo(it.q) : bloqueCodigo("Solución modelo", it.q.solucion))),
+      h("div", { class: "acciones" }, h("button", { class: "btn oro", onclick: renderSimInicio }, "Otro simulacro"))));
+    return;
+  }
+
+  p.replaceChildren(h("div", { class: "wrap" }, h("h2", {}, "Corrigiendo…"), pensando("Claude está revisando tus 4 respuestas escritas. Puede tardar un minuto.")));
+  try {
+    const fb = await revisarSimulacro(textos);
+    const porId = {};
+    (fb.items || []).forEach(x => { porId[x.id] = x; });
+    const filas = sim.items.map(it => {
+      if (it.tipo === "donde") return { titulo: "¿Dónde está? · " + it.q.p, pts: ptsDonde, com: donde.correcta ? "Correcto." : "Era: " + it.q.o[it.q.c] };
+      const x = porId[it.id] || {};
+      return { titulo: (it.tipo === "codigo" ? "En vivo · " + it.q.titulo : it.q.p), pts: Math.max(0, Math.min(10, Math.round(Number(x.puntaje) || 0))), com: x.comentario || "" };
+    });
+    const total = filas.reduce((a, f) => a + f.pts, 0);
+    const nota = notaChilena(total / (filas.length * 10));
+    if (S.mejorNota == null || nota > S.mejorNota) S.mejorNota = nota;
+    S.puntos += total; guardar();
+    p.replaceChildren(h("div", { class: "wrap" },
+      h("div", {}, h("span", { class: "eyebrow" }, `Simulacro corregido · ${usado} min`), h("h2", {}, "Nota " + nota.toFixed(1).replace(".", ","))),
+      h("p", { class: "muted" }, `${total} de ${filas.length * 10} puntos · +${total} pts al ranking`),
+      fb.resumen ? h("div", { class: "explica" }, h("p", { html: conCodigo(fb.resumen) })) : null,
+      h("article", { class: "ticket" }, h("div", { class: "informe" }, filas.map(f => h("div", { class: "fila" },
+        h("span", { html: conCodigo(f.titulo) }), h("b", {}, f.pts + "/10"),
+        h("span", { class: "small muted", html: conCodigo(f.com) }))))),
+      h("div", { class: "acciones" }, h("button", { class: "btn oro", onclick: renderSimInicio }, "Otro simulacro"))));
+  } catch (e) {
+    p.replaceChildren(h("div", { class: "wrap" }, h("p", { class: "aviso" }, textoError(e)),
+      h("div", { class: "acciones" }, h("button", { class: "btn oro", onclick: terminarSim }, "Reintentar corrección"), h("button", { class: "btn sec", onclick: renderSimInicio }, "Volver"))));
+  }
+}
+
+/* =========================================================================
+   Arranque
+   ========================================================================= */
+
+async function conectar() {
+  const [db, user, sample] = await Promise.all([usar("db"), usar("user"), usar("sample")]);
+  CAP.db = db; CAP.user = user; CAP.sample = sample;
+  if (user) {
+    const yo = await user.me();
+    CAP.uid = yo.id; CAP.me = yo;
+    if (yo.name) $("#nombreYo").textContent = yo.name.split(" ")[0];
+    if (yo.avatarUrl) { $("#avatar").src = yo.avatarUrl; $("#avatar").hidden = false; }
+    const puede = await user.can("data.write");
+    if (puede === false) CAP.puedeEscribir = false;
+  }
+  if (db && CAP.uid) {
+    try {
+      const snap = await db.doc("puntajes/" + CAP.uid).get();
+      if (snap.exists) {
+        const d = snap.data();
+        // Se conserva el mayor avance entre este navegador y lo guardado
+        if ((d.puntos || 0) > S.puntos) { S.puntos = d.puntos; S.respondidas = d.respondidas || S.respondidas; S.aciertos = d.aciertos || S.aciertos; }
+        if (d.mejorNota != null && (S.mejorNota == null || d.mejorNota > S.mejorNota)) S.mejorNota = d.mejorNota;
+        guardarLocal(); pintarPuntos();
+      }
+    } catch (e) {}
+  }
+  if (db) {
+    db.collection("puntajes").orderBy("puntos", "desc").limit(50).onSnapshot(snap => {
+      CAP.ranking = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      refrescarPerfiles();
+    }, () => { CAP.ranking = []; if (S.tab === "inicio") renderInicio(); });
+  }
+  // Los textos de las pestañas dependen de si hay revisión con Claude
+  for (const id of ["teoria", "vivo", "simulacro"]) if ($("#p-" + id).hidden) $("#p-" + id).replaceChildren();
+  if (S.tab === "inicio") renderInicio();
+}
+
+function arrancar() {
+  cargarLocal();
+  pintarPuntos();
+  irA("inicio");
+  conectar();
+}
+arrancar();
+</script>
